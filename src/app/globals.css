@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/*  Veecos Design System — Tailwind v4 theme tokens                    */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-brand: #edcd1f;
+  --color-brand-600: #d8b80f;
+  --color-brand-700: #b89a08;
+  --color-brand-soft: #fbf3c4;
+
+  --color-ink: #2f2e2e;
+  --color-ink-700: #3a3939;
+  --color-charcoal: #1c1b1b;
+  --color-night: #121111;
+
+  --color-paper: #faf9f5;
+  --color-paper-2: #f3f1ea;
+  --color-line: #e7e4da;
+
+  --font-sans: "Switzer", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+
+  --shadow-soft: 0 1px 2px rgba(28, 27, 27, 0.04),
+    0 8px 30px rgba(28, 27, 27, 0.06);
+  --shadow-card: 0 2px 6px rgba(28, 27, 27, 0.05),
+    0 18px 40px -16px rgba(28, 27, 27, 0.18);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+:root {
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-brand);
+  color: var(--color-ink);
+}
+
+/* Tighter, premium headings */
+h1, h2, h3, h4 {
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* Thin custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cfcabb;
+  border-radius: 999px;
+  border: 2px solid var(--color-paper);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b7b1a0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Utilities                                                          */
+/* ------------------------------------------------------------------ */
+.text-balance {
+  text-wrap: balance;
+}
+
+.bg-grid {
+  background-image: linear-gradient(
+      to right,
+      rgba(47, 46, 46, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(47, 46, 46, 0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Marquee for clients */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.animate-marquee {
+  animation: marquee 38s linear infinite;
+}
+.animate-marquee-reverse {
+  animation: marquee-reverse 44s linear infinite;
+}
+.marquee-slow {
+  animation-duration: 60s;
+}
+/* Pause the strip when hovering anywhere on the row */
+.marquee-pause:hover .animate-marquee,
+.marquee-pause:hover .animate-marquee-reverse {
+  animation-play-state: paused;
+}
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-marquee,
+  .animate-marquee-reverse {
+    animation: none;
+  }
+}
