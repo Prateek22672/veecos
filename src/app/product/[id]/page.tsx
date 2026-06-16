@@ -8,8 +8,13 @@ import { ProductGallery } from "@/components/catalog/ProductGallery";
 import { LeadForm } from "@/components/contact/LeadForm";
 import { getProduct, bareId, prettify } from "@/lib/api";
 import { site } from "@/lib/site";
+import {
+  productMetadata,
+  productAlt,
+  breadcrumbJsonLd,
+} from "@/lib/seo";
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -17,17 +22,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const product = await getProduct(id);
   if (!product) return { title: "Product not found" };
-  const specSummary = product.Specs
-    ? Object.entries(product.Specs)
-        .slice(0, 3)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(", ")
-    : "";
-  return {
-    title: product.Name,
-    description: `${product.Name} by Veecos Canteen Equipments. ${specSummary}. Customisable commercial kitchen equipment — request a quote.`,
-    alternates: { canonical: `/product/${id}` },
-  };
+  return productMetadata(product, id);
 }
 
 export default async function ProductPage({ params }: Params) {
@@ -39,28 +34,51 @@ export default async function ProductPage({ params }: Params) {
   const specs = product.Specs ? Object.entries(product.Specs) : [];
   const available = product.IsAvailable !== false;
 
-  const jsonLd = {
+  const categoryName = categoryId ? prettify(categoryId) : undefined;
+
+  const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.Name,
     image: product.Images,
+    description:
+      product.Description ??
+      `${product.Name} — customisable commercial kitchen equipment by Veecos Canteen Equipments, Visakhapatnam (Vizag).`,
+    ...(categoryName ? { category: categoryName } : {}),
+    sku: id,
     brand: { "@type": "Brand", name: site.shortName },
-    manufacturer: { "@type": "Organization", name: site.name },
+    manufacturer: {
+      "@type": "Organization",
+      name: site.name,
+      areaServed: ["Visakhapatnam", "Vizag", "Hyderabad", "Andhra Pradesh", "Telangana"],
+    },
     offers: {
       "@type": "Offer",
       availability: available
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
       priceCurrency: "INR",
+      url: `${site.url}/product/${id}`,
       seller: { "@type": "Organization", name: site.name },
     },
   };
+
+  const breadcrumb = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Products", path: "/products" },
+    ...(categoryId && categoryName
+      ? [{ name: categoryName, path: `/products/${categoryId}` }]
+      : []),
+    { name: product.Name, path: `/product/${id}` },
+  ]);
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([productJsonLd, breadcrumb]),
+        }}
       />
 
       {/* slim header */}
@@ -68,7 +86,7 @@ export default async function ProductPage({ params }: Params) {
         <Container>
           <Link
             href={categoryId ? `/products/${categoryId}` : "/products"}
-            className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-brand"
+            className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
           >
             <ArrowLeft className="size-4" />
             Back to {categoryId ? prettify(categoryId) : "products"}
@@ -81,7 +99,10 @@ export default async function ProductPage({ params }: Params) {
           <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
             {/* Gallery */}
             <Reveal>
-              <ProductGallery images={product.Images ?? []} alt={product.Name} />
+              <ProductGallery
+                images={product.Images ?? []}
+                alt={productAlt(product.Name)}
+              />
             </Reveal>
 
             {/* Info */}
@@ -97,7 +118,7 @@ export default async function ProductPage({ params }: Params) {
                   </span>
                 )}
                 {product.IsCustomizable && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-xs font-semibold text-ink">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-xs font-semibold text-white">
                     <Settings2 className="size-3.5" /> Customisable
                   </span>
                 )}
@@ -132,7 +153,7 @@ export default async function ProductPage({ params }: Params) {
                 </div>
               )}
 
-              <div className="mt-8 rounded-2xl border border-brand/30 bg-brand-soft/40 p-5">
+              <div className="mt-8 rounded-2xl border border-ink/10 bg-paper-2 p-5">
                 <p className="text-sm text-ink/75">
                   Pricing is quoted per project and configuration. Send an enquiry
                   below or call{" "}
@@ -165,10 +186,10 @@ export default async function ProductPage({ params }: Params) {
               </p>
               <a
                 href={`tel:${site.phones[0].replace(/\s/g, "")}`}
-                className="mt-8 inline-flex items-center gap-3 rounded-2xl border border-line bg-white p-4 transition-colors hover:border-brand"
+                className="mt-8 inline-flex items-center gap-3 rounded-2xl border border-ink/10 bg-white p-4 transition-colors hover:border-ink/30"
               >
-                <span className="grid size-11 place-items-center rounded-xl bg-brand/15 text-brand-700">
-                  <Phone className="size-5" />
+                <span className="grid size-11 place-items-center rounded-full border border-ink/15 text-ink">
+                  <Phone className="size-5" strokeWidth={1.6} />
                 </span>
                 <span>
                   <span className="block text-xs text-ink/55">Call us directly</span>

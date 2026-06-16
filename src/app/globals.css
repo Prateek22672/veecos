@@ -9,17 +9,16 @@
   --color-brand-700: #b89a08;
   --color-brand-soft: #fbf3c4;
 
-  --color-ink: #2f2e2e;
-  --color-ink-700: #3a3939;
-  --color-charcoal: #1c1b1b;
-  --color-night: #121111;
+  --color-ink: #16150f;
+  --color-ink-700: #46443c;
+  --color-charcoal: #1c1b18;
+  --color-night: #100f0c;
 
-  --color-paper: #faf9f5;
-  --color-paper-2: #f3f1ea;
-  --color-line: #e7e4da;
+  --color-paper: #eceae3;
+  --color-paper-2: #e3e0d7;
+  --color-line: #d6d2c7;
 
-  --font-sans: "Switzer", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Saans", Arial, Helvetica, ui-sans-serif, system-ui, sans-serif;
 
   --shadow-soft: 0 1px 2px rgba(28, 27, 27, 0.04),
     0 8px 30px rgba(28, 27, 27, 0.06);
@@ -100,6 +99,21 @@ h1, h2, h3, h4 {
   background-size: 64px 64px;
 }
 
+/* Lenis smooth scrolling */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
 /* Marquee for clients */
 @keyframes marquee {
   from {
@@ -148,12 +162,57 @@ h1, h2, h3, h4 {
   );
 }
 
+/* ── Splash screen ── */
+@keyframes splash-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes splash-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes splash-bar {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+.animate-splash-pop {
+  animation: splash-pop 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-splash-rise {
+  animation: splash-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+.animate-splash-bar {
+  transform-origin: left;
+  animation: splash-bar 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .animate-marquee,
   .animate-marquee-reverse {
+    animation: none;
+  }
+  .animate-splash-pop,
+  .animate-splash-rise,
+  .animate-splash-bar {
     animation: none;
   }
 }

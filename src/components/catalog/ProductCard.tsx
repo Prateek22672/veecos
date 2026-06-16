@@ -1,15 +1,18 @@
 import Link from "next/link";
 import { ArrowUpRight, Settings2 } from "lucide-react";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { bareId, type Product } from "@/lib/api";
+import { bareId, type Product } from "@/lib/catalog-types";
 import { categoryVisual } from "@/lib/catalog-visuals";
+import { productAlt } from "@/lib/seo";
 
 export function ProductCard({
   product,
   priority = false,
+  eyebrow,
 }: {
   product: Product;
   priority?: boolean;
+  eyebrow?: string;
 }) {
   const id = bareId(product.PK);
   const img = product.Images?.[0] || categoryVisual(product.Name, product.Slug).image;
@@ -23,7 +26,7 @@ export function ProductCard({
       <div className="relative aspect-square overflow-hidden bg-paper-2">
         <SmartImage
           src={img}
-          alt={product.Name}
+          alt={productAlt(product.Name)}
           fill
           priority={priority}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -48,7 +51,12 @@ export function ProductCard({
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="text-[15px] font-semibold leading-snug text-ink transition-colors group-hover:text-brand-700">
+        {eyebrow && (
+          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink/40">
+            {eyebrow}
+          </p>
+        )}
+        <h3 className="text-[15px] font-medium leading-snug tracking-tight text-ink">
           {product.Name}
         </h3>
         {firstSpec && (
@@ -59,7 +67,7 @@ export function ProductCard({
         )}
         <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-ink/70">
           View details
-          <span className="h-px w-5 bg-brand-600 transition-all duration-300 group-hover:w-8" />
+          <span className="h-px w-5 bg-ink/40 transition-all duration-300 group-hover:w-8" />
         </span>
       </div>
     </Link>
@@ -76,7 +84,7 @@ function Badge({
   const tones = {
     ok: "bg-white/90 text-ink",
     muted: "bg-ink/80 text-white",
-    brand: "bg-brand text-ink",
+    brand: "bg-ink text-white",
   } as const;
   return (
     <span

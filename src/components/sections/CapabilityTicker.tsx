@@ -6,7 +6,7 @@ export function CapabilityTicker() {
   const strip = [...logos, ...logos];
 
   return (
-    <div className="border-y border-line bg-white/60 py-7">
+    <div className="mx-auto w-[96%] overflow-hidden rounded-4xl border border-line bg-white/60 py-7 sm:rounded-[2.5rem]">
       <p className="mb-6 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-ink/40">
         Trusted by leading institutions &amp; businesses
       </p>

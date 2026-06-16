@@ -1,27 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  useReducedMotion,
-  type Variants,
-} from "motion/react";
+import Link from "next/link";
+import { motion, useReducedMotion, type Variants } from "motion/react";
+import { ChevronRight, ArrowDown } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { CircularText } from "@/components/ui/CircularText";
+import { cn } from "@/lib/cn";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } },
-};
-
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06, delayChildren: 0.15 } },
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.3 } },
+};
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } },
 };
 
 export interface PageHeroProps {
@@ -31,8 +26,14 @@ export interface PageHeroProps {
   description?: string;
   crumbs?: { label: string; href?: string }[];
   subtitle?: string;
+  /** Shorter hero — for content-heavy pages like the catalogue. */
+  compact?: boolean;
 }
 
+/**
+ * Full-bleed image hero with an overlaid heading (bottom-left) — matches the
+ * home hero's cinematic look across About / Services / Contact.
+ */
 export function PageHero({
   image,
   eyebrow,
@@ -40,43 +41,21 @@ export function PageHero({
   description,
   crumbs,
   subtitle,
+  compact = false,
 }: PageHeroProps) {
   const reduce = useReducedMotion();
-  const sectionRef = useRef<HTMLElement>(null);
-
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 70, damping: 20, mass: 0.5 });
-  const sy = useSpring(my, { stiffness: 70, damping: 20, mass: 0.5 });
-  const imgX = useTransform(sx, [-0.5, 0.5], [-14, 14]);
-  const imgY = useTransform(sy, [-0.5, 0.5], [-10, 10]);
-
-  function handleMove(e: React.MouseEvent<HTMLElement>) {
-    if (reduce) return;
-    const r = sectionRef.current?.getBoundingClientRect();
-    if (!r) return;
-    mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
-  }
 
   return (
-    <section
-      ref={sectionRef}
-      onMouseMove={handleMove}
-      onMouseLeave={() => {
-        mx.set(0);
-        my.set(0);
-      }}
-      className="relative flex min-h-[70svh] flex-col overflow-hidden bg-night py-20 text-white sm:min-h-[75svh] sm:py-24 lg:min-h-[80svh]"
-    >
-      {/* Full-bleed background image */}
+    <section className="relative w-full overflow-hidden">
       <motion.div
-        style={{ x: reduce ? undefined : imgX, y: reduce ? undefined : imgY }}
-        className="absolute inset-0 z-0 scale-110"
+        initial={reduce ? false : { scale: 1.08, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.3, ease: EASE }}
+        className="absolute inset-0"
       >
         <Image
           src={image}
-          alt="Page hero image"
+          alt={title}
           fill
           priority
           sizes="100vw"
@@ -84,58 +63,98 @@ export function PageHero({
         />
       </motion.div>
 
-      {/* Legibility overlays */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-r from-night/92 via-night/65 to-night/25" />
-      <div className="absolute inset-0 z-0 bg-gradient-to-t from-night/75 via-transparent to-night/45" />
-      <div className="pointer-events-none absolute -left-40 top-1/3 z-0 size-[40rem] rounded-full bg-brand/12 blur-[150px]" />
+      {/* Top fade keeps the nav readable; bottom scrim carries the heading */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-ink/55 via-ink/15 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/35 to-transparent" />
 
-      <Container className="relative z-10 flex flex-col justify-center">
+      {/* Rotating brand seal — upper-right on small screens (clear of the
+          heading), bottom-right corner on large screens. */}
+      <motion.div
+        initial={reduce ? false : { opacity: 0, scale: 0.85 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
+        className="pointer-events-none absolute right-3 top-28 z-10 text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.55)] sm:right-6 sm:top-32 lg:right-10 lg:top-auto lg:bottom-10"
+      >
+        <div className="relative grid place-items-center">
+          <CircularText
+            text="✦ VEECOS ✦ SINCE 1998 "
+            spinDuration={22}
+            className="size-20 text-white sm:size-24 lg:size-32"
+          />
+          <span className="absolute grid size-7 place-items-center rounded-full border border-white text-white sm:size-9 lg:size-11">
+            <ArrowDown className="size-3.5 sm:size-4 lg:size-5" />
+          </span>
+        </div>
+      </motion.div>
+
+      <Container
+        className={cn(
+          "relative flex flex-col justify-end pb-12 pt-32 sm:pb-16 sm:pt-36",
+          compact
+            ? "min-h-[54vh] sm:min-h-[58vh] lg:min-h-[62vh]"
+            : "min-h-[70vh] sm:min-h-[74vh] lg:min-h-[82vh]",
+        )}
+      >
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
-          className="max-w-2xl"
+          className="max-w-3xl"
         >
           {crumbs && (
-            <motion.div variants={fadeUp} className="mb-6 flex items-center gap-1.5 text-xs text-white/50">
+            <motion.nav
+              variants={fadeUp}
+              className="mb-4 flex flex-wrap items-center gap-1.5 text-xs text-white/60"
+            >
               {crumbs.map((c, i) => (
                 <span key={c.label} className="flex items-center gap-1.5">
-                  {i > 0 && <span>→</span>}
+                  {i > 0 && <ChevronRight className="size-3.5 text-white/40" />}
                   {c.href ? (
-                    <a href={c.href} className="transition-colors hover:text-brand">
+                    <Link
+                      href={c.href}
+                      className="transition-colors hover:text-white"
+                    >
                       {c.label}
-                    </a>
+                    </Link>
                   ) : (
-                    <span className="text-white/80">{c.label}</span>
+                    <span className="text-white/85">{c.label}</span>
                   )}
                 </span>
               ))}
-            </motion.div>
+            </motion.nav>
           )}
 
           {eyebrow && (
-            <motion.div variants={fadeUp}>
-              <span className="inline-flex text-[11px] font-semibold uppercase tracking-[0.16em] text-brand/80">
-                {eyebrow}
-              </span>
-            </motion.div>
+            <motion.span
+              variants={fadeUp}
+              className="inline-flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70"
+            >
+              <span className="h-px w-8 bg-white/40" />
+              {eyebrow}
+            </motion.span>
           )}
 
           <motion.h1
             variants={fadeUp}
-            className="mt-4 text-4xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl"
+            className="mt-4 text-[clamp(2.25rem,5.5vw,4.75rem)] font-medium leading-[0.98] tracking-tight text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]"
           >
             {title}
           </motion.h1>
 
           {subtitle && (
-            <motion.p variants={fadeUp} className="mt-4 text-lg font-medium text-white/80">
+            <motion.p
+              variants={fadeUp}
+              className="mt-3 text-lg font-medium text-white/80"
+            >
               {subtitle}
             </motion.p>
           )}
 
           {description && (
-            <motion.p variants={fadeUp} className="mt-6 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
+            <motion.p
+              variants={fadeUp}
+              className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg"
+            >
               {description}
             </motion.p>
           )}

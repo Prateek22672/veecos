@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
-import { submitLead } from "@/lib/api";
+import { submitLead } from "@/lib/leads";
 import { cn } from "@/lib/cn";
 
 type Status = "idle" | "loading" | "success" | "error";
@@ -65,8 +65,8 @@ export function LeadForm({
 
   if (status === "success") {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-brand/40 bg-brand-soft/50 p-10 text-center">
-        <CheckCircle2 className="size-12 text-brand-700" />
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-ink/10 bg-paper-2 p-10 text-center">
+        <CheckCircle2 className="size-12 text-ink" strokeWidth={1.4} />
         <h3 className="mt-4 text-xl font-semibold text-ink">Thank you!</h3>
         <p className="mt-2 max-w-sm text-sm text-ink/65">
           Your enquiry has reached our team. We&apos;ll get back to you shortly.
@@ -75,7 +75,7 @@ export function LeadForm({
         <button
           type="button"
           onClick={() => setStatus("idle")}
-          className="mt-6 text-sm font-medium text-brand-700 underline underline-offset-4"
+          className="mt-6 text-sm font-medium text-ink underline underline-offset-4"
         >
           Send another message
         </button>
@@ -107,7 +107,7 @@ export function LeadForm({
               ? `I'm interested in the ${productName}…`
               : "Tell us about your kitchen project…"
           }
-          className="w-full resize-none rounded-xl border border-line bg-paper px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand/30"
+          className="w-full resize-none rounded-xl border border-line bg-paper px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-ink/40 focus:bg-white focus:ring-2 focus:ring-ink/15"
         />
       </div>
 
@@ -157,14 +157,14 @@ function Field({
     <div>
       <label htmlFor={name} className="mb-1.5 block text-sm font-medium text-ink/80">
         {label}
-        {required && <span className="text-brand-700"> *</span>}
+        {required && <span className="text-ink/40"> *</span>}
       </label>
       <input
         id={name}
         name={name}
         type={type}
         required={required}
-        className="h-11 w-full rounded-xl border border-line bg-paper px-4 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand/30"
+        className="h-11 w-full rounded-xl border border-line bg-paper px-4 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-ink/40 focus:bg-white focus:ring-2 focus:ring-ink/15"
       />
     </div>
   );

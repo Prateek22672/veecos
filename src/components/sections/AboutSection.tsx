@@ -56,8 +56,8 @@ export function AboutSection() {
               {features.map((f, i) => (
                 <Reveal key={f.title} delay={0.12 + i * 0.05}>
                   <div className="flex items-start gap-3">
-                    <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-brand text-ink">
-                      <Check className="size-3.5" strokeWidth={3} />
+                    <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border border-ink/15 text-ink">
+                      <Check className="size-3.5" strokeWidth={2.5} />
                     </span>
                     <div>
                       <p className="text-sm font-semibold text-ink">{f.title}</p>
@@ -85,8 +85,8 @@ export function AboutSection() {
 function MiniStat({ value, label }: { value: string; label: string }) {
   return (
     <div className="bg-ink px-7 py-5 text-center">
-      <p className="text-2xl font-bold text-brand">{value}</p>
-      <p className="text-[11px] uppercase tracking-widest text-white/60">{label}</p>
+      <p className="text-2xl font-medium tracking-tight text-white">{value}</p>
+      <p className="text-[11px] uppercase tracking-widest text-white/55">{label}</p>
     </div>
   );
 }

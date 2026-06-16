@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageHero } from "@/components/sections/PageHero";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { Container } from "@/components/ui/Container";
+import { images } from "@/lib/images";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Contact — Kitchen Equipment Manufacturer in Visakhapatnam",
   description:
-    "Get in touch with Veecos Canteen Equipments. Call +91 9848196184 or email sales@vce.co.in. Head office in Auto Nagar, Visakhapatnam, Andhra Pradesh.",
+    "Get in touch with Veecos Canteen Equipments, Visakhapatnam. Call +91 9848196184 or email sales@vce.co.in. Workshop in Auto Nagar, Vizag — request a quote for commercial kitchen equipment & installation.",
+  keywords: [
+    "contact Veecos",
+    "commercial kitchen equipment Visakhapatnam contact",
+    "kitchen equipment shop Auto Nagar Vizag",
+    "request a quote kitchen equipment",
+  ],
   alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {
   return (
     <>
-      <PageHeader
+      <PageHero
+        image={images.kitchenWarm}
         eyebrow="Contact"
         title="Get in touch"
         description="We'd love to hear from you. For inquiries, questions or to request a quote, reach out — we typically respond within one business day."

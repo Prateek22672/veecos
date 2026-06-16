@@ -1,51 +1,68 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, MapPin, Phone, ArrowUpRight } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  Phone,
+  ArrowUpRight,
+  Clock,
+  Headset,
+  type LucideIcon,
+} from "lucide-react";
 import { nav, site } from "@/lib/site";
 import { images } from "@/lib/images";
 import { Container } from "@/components/ui/Container";
 import { Logo } from "./Logo";
 
+const COMPANY_LINKS = [
+  { label: "All products", href: "/products" },
+  { label: "Our clients", href: "/#clients" },
+  { label: "Request a quote", href: "/contact" },
+  { label: "About Veecos", href: "/about" },
+];
+
 export function Footer() {
   return (
     <footer className="relative overflow-hidden bg-charcoal text-white">
-      <div className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-brand/10 blur-3xl" />
+      {/* Oversized brand watermark */}
+      <span className="pointer-events-none absolute -bottom-6 -left-4 select-none text-[clamp(7rem,19vw,17rem)] font-bold leading-none tracking-tighter text-white/[0.035] sm:-bottom-12">
+        VEECOS
+      </span>
+
       <Container className="relative">
-        {/* CTA band */}
-        <div className="grid gap-8 border-b border-white/10 py-16 md:grid-cols-2 md:items-center">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
-              Get in touch
+        {/* ── Top band: address + appointment CTA ── */}
+        <div className="flex flex-col gap-6 border-b border-white/10 py-10 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            <Logo light />
+            <span className="hidden h-10 w-px bg-white/15 sm:block" />
+            <p className="hidden max-w-[15rem] text-sm leading-snug text-white/55 sm:block">
+              {site.address.line}, {site.address.city}
             </p>
-            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] sm:text-4xl">
-              Planning a new kitchen? Let&apos;s build it right.
-            </h2>
           </div>
-          <div className="flex flex-col gap-3 md:items-end">
+          <div className="flex items-center gap-2.5">
             <Link
               href="/contact"
-              className="group inline-flex h-13 items-center gap-2 rounded-full bg-brand px-8 text-[15px] font-medium text-ink transition-all hover:bg-brand-600 hover:-translate-y-0.5"
+              className="inline-flex h-13 items-center rounded-full border border-white/25 px-7 text-[15px] font-medium text-white transition-all duration-300 hover:bg-white hover:text-ink"
             >
-              Request a Quote
-              <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              Schedule a consultation
             </Link>
-            <a
-              href={`mailto:${site.quoteEmail}`}
-              className="text-sm text-white/60 transition-colors hover:text-white"
+            <Link
+              href="/contact"
+              aria-label="Contact us"
+              className="grid size-13 shrink-0 place-items-center rounded-full border border-white/25 text-white transition-all duration-300 hover:bg-white hover:text-ink"
             >
-              or email {site.quoteEmail}
-            </a>
+              <ArrowUpRight className="size-5" />
+            </Link>
           </div>
         </div>
 
-        {/* Main */}
-        <div className="grid gap-12 py-16 lg:grid-cols-[1.4fr_1fr_1.3fr]">
+        {/* ── Columns ── */}
+        <div className="grid gap-10 py-16 lg:grid-cols-[1.3fr_0.8fr_0.8fr_1.1fr]">
           <div className="max-w-sm">
-            <Logo light />
-            <p className="mt-5 text-sm leading-relaxed text-white/55">
+            <p className="text-sm leading-relaxed text-white/55">
               Commercial kitchen equipment manufacturer since {site.established}.
-              Turn-key kitchens, custom fabrication & after-sales support across
-              Andhra Pradesh, Telangana and beyond.
+              Turn-key kitchens, custom fabrication &amp; after-sales support
+              across Andhra Pradesh, Telangana and beyond.
             </p>
             <div className="mt-6 flex gap-3">
               <SocialIcon href={site.socials.instagram} label="Instagram">
@@ -55,70 +72,35 @@ export function Footer() {
                 <LinkedInIcon />
               </SocialIcon>
             </div>
-
-            <div className="mt-7">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/35">
-                Certified &amp; registered
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2.5">
-                <CertChip
-                  src={images.nsic}
-                  alt="NSIC certified"
-                  title="NSIC"
-                  subtitle="Govt. Registered"
-                />
-                <CertChip
-                  src={images.iso}
-                  alt="ISO 9001:2015 certified"
-                  title="ISO 9001:2015"
-                  subtitle="Quality Assured"
-                />
-              </div>
-            </div>
           </div>
+
+          <FooterCol title="Explore" items={nav} />
+          <FooterCol title="Company" items={COMPANY_LINKS} />
 
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
-              Explore
+              Get in touch
             </h3>
-            <ul className="mt-5 space-y-3">
-              {nav.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-white/70 transition-colors hover:text-brand"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
-              Head Office
-            </h3>
-            <ul className="mt-5 space-y-4 text-sm text-white/70">
+            <ul className="mt-5 space-y-4 text-sm text-white/65">
               <li className="flex gap-3">
-                <MapPin className="mt-0.5 size-4.5 shrink-0 text-brand" />
+                <MapPin className="mt-0.5 size-4.5 shrink-0 text-white/40" />
                 <span>{site.address.full}</span>
               </li>
               <li className="flex gap-3">
-                <Phone className="mt-0.5 size-4.5 shrink-0 text-brand" />
+                <Phone className="mt-0.5 size-4.5 shrink-0 text-white/40" />
                 <span className="flex flex-col">
                   {site.phones.map((p) => (
-                    <a key={p} href={`tel:${p.replace(/\s/g, "")}`} className="hover:text-brand">
+                    <a key={p} href={`tel:${p.replace(/\s/g, "")}`} className="hover:text-white">
                       {p}
                     </a>
                   ))}
                 </span>
               </li>
               <li className="flex gap-3">
-                <Mail className="mt-0.5 size-4.5 shrink-0 text-brand" />
+                <Mail className="mt-0.5 size-4.5 shrink-0 text-white/40" />
                 <span className="flex flex-col">
                   {site.emails.map((e) => (
-                    <a key={e} href={`mailto:${e}`} className="hover:text-brand">
+                    <a key={e} href={`mailto:${e}`} className="hover:text-white">
                       {e}
                     </a>
                   ))}
@@ -128,36 +110,90 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 py-7 text-xs text-white/45 sm:flex-row">
+        {/* ── Trust badges ── */}
+        <div className="grid gap-6 border-t border-white/10 py-8 sm:grid-cols-2 lg:grid-cols-4">
+          <TrustBadge logo={images.nsic} title="NSIC Certified" sub="Govt. registered" />
+          <TrustBadge logo={images.iso} title="ISO 9001:2015" sub="Quality assured" />
+          <TrustBadge icon={Clock} title="25+ Years" sub="Of experience" />
+          <TrustBadge icon={Headset} title="Pan-India" sub="After-sales support" />
+        </div>
+
+        {/* ── Legal ── */}
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 py-7 text-xs text-white/45 sm:flex-row">
           <p>
             © {site.established} {site.name}. All rights reserved.
           </p>
-          <p>NSIC &amp; ISO 9001:2015 Certified · Made in India</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
+            <span>NSIC &amp; ISO 9001:2015 Certified · Made in India</span>
+            <a
+              href="https://foliofyx.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-white/55 transition-colors hover:text-white"
+            >
+              Crafted by FOLIOFYX
+              <ArrowUpRight className="size-3" />
+            </a>
+          </div>
         </div>
       </Container>
     </footer>
   );
 }
 
-function CertChip({
-  src,
-  alt,
+function FooterCol({
   title,
-  subtitle,
+  items,
 }: {
-  src: string;
-  alt: string;
   title: string;
-  subtitle: string;
+  items: readonly { label: string; href: string }[];
 }) {
   return (
-    <div className="group flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.06] p-2 pr-4 transition-colors duration-300 hover:border-brand/40 hover:bg-white/10">
-      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white p-1.5">
-        <Image src={src} alt={alt} width={44} height={44} className="size-full object-contain" />
-      </span>
-      <div className="leading-tight">
-        <p className="text-[13px] font-semibold text-white">{title}</p>
-        <p className="text-[10px] uppercase tracking-wide text-white/45">{subtitle}</p>
+    <div>
+      <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
+        {title}
+      </h3>
+      <ul className="mt-5 space-y-3">
+        {items.map((item) => (
+          <li key={item.href + item.label}>
+            <Link
+              href={item.href}
+              className="text-sm text-white/65 transition-colors hover:text-white"
+            >
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function TrustBadge({
+  logo,
+  icon: Icon,
+  title,
+  sub,
+}: {
+  logo?: string;
+  icon?: LucideIcon;
+  title: string;
+  sub: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      {logo ? (
+        <span className="grid size-12 shrink-0 place-items-center rounded-full bg-white p-2.5">
+          <Image src={logo} alt="" width={36} height={36} className="size-full object-contain" />
+        </span>
+      ) : Icon ? (
+        <span className="grid size-12 shrink-0 place-items-center rounded-full border border-white/15 text-white/70">
+          <Icon className="size-5" />
+        </span>
+      ) : null}
+      <div>
+        <p className="text-sm font-medium text-white">{title}</p>
+        <p className="text-[11px] text-white/45">{sub}</p>
       </div>
     </div>
   );
@@ -178,7 +214,7 @@ function SocialIcon({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="grid size-10 place-items-center rounded-full border border-white/15 text-white/70 transition-all hover:border-brand hover:bg-brand hover:text-ink"
+      className="grid size-10 place-items-center rounded-full border border-white/15 text-white/70 transition-all hover:border-white hover:bg-white hover:text-ink"
     >
       {children}
     </a>

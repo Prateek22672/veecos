@@ -55,7 +55,7 @@ export function ClientsSection() {
   return (
     <section
       id="clients"
-      className="scroll-mt-24 overflow-hidden bg-paper-2 py-20 sm:py-28"
+      className="scroll-mt-24 overflow-hidden bg-paper-2 pb-20 pt-14 sm:pb-28 sm:pt-16"
     >
       <Container>
         <div className="mx-auto max-w-3xl text-center">
@@ -69,7 +69,7 @@ export function ClientsSection() {
               Trusted by leading{" "}
               <AnimatedTextCycle
                 words={["colleges", "hotels", "hospitals", "canteens", "resorts"]}
-                className="text-brand-700"
+                className="text-ink/40"
               />
             </h2>
           </Reveal>

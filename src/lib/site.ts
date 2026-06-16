@@ -7,8 +7,12 @@ export const site = {
   tagline: "Commercial Kitchen Equipment Manufacturer",
   established: 1998,
   url: "https://www.vce.co.in",
+  /** Default Open Graph / Twitter share image (kitchen hero). */
+  ogImage: "/hero-kitchen.jpeg",
+  /** Approx. workshop location (Auto Nagar, Visakhapatnam) for LocalBusiness geo. */
+  geo: { lat: 17.7326, lng: 83.2329 },
   description:
-    "Veecos Canteen Equipments — leading manufacturer of commercial kitchen equipment since 1998. Cooking ranges, exhaust hoods, refrigeration, wash-area equipment and complete turn-key kitchen projects across Andhra Pradesh & Telangana.",
+    "Veecos Canteen Equipments — leading manufacturer of commercial kitchen equipment in Visakhapatnam (Vizag) since 1998. Cooking ranges, exhaust hoods, refrigeration, wash-area equipment, installation and complete turn-key kitchen projects across Andhra Pradesh & Telangana.",
   phones: ["+91 9848196184", "+91 9581396184"],
   emails: ["sales@vce.co.in", "info@vce.co.in", "veecos@yahoo.co.in"],
   quoteEmail: "sales@vce.co.in",

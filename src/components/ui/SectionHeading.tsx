@@ -1,5 +1,33 @@
+import Image from "next/image";
 import { cn } from "@/lib/cn";
 import { Reveal } from "./Reveal";
+
+/**
+ * Faint circular cutlery emblem — fills the empty space beside a left-aligned
+ * heading. Decorative only (aria-hidden). Hidden on small screens.
+ */
+export function HeadingMark({
+  light = false,
+  className,
+}: {
+  light?: boolean;
+  className?: string;
+}) {
+  return (
+    <Image
+      src="/cutlury-logo.svg"
+      alt=""
+      aria-hidden
+      width={240}
+      height={240}
+      className={cn(
+        "pointer-events-none hidden size-40 select-none lg:block xl:size-48",
+        light ? "opacity-[0.09] invert" : "opacity-[0.06]",
+        className,
+      )}
+    />
+  );
+}
 
 export function Eyebrow({
   children,
@@ -13,12 +41,12 @@ export function Eyebrow({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em]",
-        light ? "text-brand" : "text-ink/55",
+        "inline-flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em]",
+        light ? "text-white/55" : "text-ink/45",
         className,
       )}
     >
-      <span className={cn("h-px w-7", light ? "bg-brand" : "bg-brand-600")} />
+      <span className={cn("h-px w-8", light ? "bg-white/30" : "bg-ink/25")} />
       {children}
     </span>
   );
@@ -31,6 +59,7 @@ export function SectionHeading({
   align = "left",
   light = false,
   className,
+  emblem = false,
 }: {
   eyebrow?: string;
   title: React.ReactNode;
@@ -38,15 +67,11 @@ export function SectionHeading({
   align?: "left" | "center";
   light?: boolean;
   className?: string;
+  /** Show the cutlery emblem in the empty space on the right (left-align only). */
+  emblem?: boolean;
 }) {
-  return (
-    <div
-      className={cn(
-        "max-w-2xl",
-        align === "center" && "mx-auto text-center [&_span]:justify-center",
-        className,
-      )}
-    >
+  const text = (
+    <>
       {eyebrow && (
         <Reveal>
           <Eyebrow light={light}>{eyebrow}</Eyebrow>
@@ -74,6 +99,32 @@ export function SectionHeading({
           </p>
         </Reveal>
       )}
+    </>
+  );
+
+  if (emblem && align !== "center") {
+    return (
+      <div
+        className={cn(
+          "flex items-center justify-between gap-8",
+          className,
+        )}
+      >
+        <div className="max-w-2xl">{text}</div>
+        <HeadingMark light={light} className="shrink-0" />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "max-w-2xl",
+        align === "center" && "mx-auto text-center [&_span]:justify-center",
+        className,
+      )}
+    >
+      {text}
     </div>
   );
 }

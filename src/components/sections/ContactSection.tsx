@@ -1,9 +1,15 @@
-import { Mail, MapPin, Phone, Clock } from "lucide-react";
+import { Mail, MapPin, Phone, Clock, Check } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { LeadForm } from "@/components/contact/LeadForm";
+import { EnquiryDialog } from "@/components/contact/EnquiryDialog";
 import { site } from "@/lib/site";
+
+const PERKS = [
+  "Free design consultation",
+  "Custom quote within one business day",
+  "Turn-key — design, build & install",
+];
 
 export function ContactSection() {
   return (
@@ -61,15 +67,33 @@ export function ContactSection() {
             </div>
           </div>
 
-          {/* Form */}
+          {/* Enquiry — opens a popup form */}
           <Reveal delay={0.1}>
-            <div className="rounded-3xl border border-line bg-white p-6 shadow-card sm:p-9">
-              <h3 className="text-lg font-semibold text-ink">Send us an enquiry</h3>
-              <p className="mt-1 text-sm text-ink/55">
-                We typically respond within one business day.
-              </p>
-              <div className="mt-6">
-                <LeadForm />
+            <div className="flex h-full flex-col justify-between rounded-3xl border border-line bg-white p-8 shadow-card sm:p-10">
+              <div>
+                <h3 className="text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+                  Schedule a consultation
+                </h3>
+                <p className="mt-3 text-base leading-relaxed text-ink/60">
+                  Share your kitchen requirements and our team will get back with
+                  a tailored plan and quote.
+                </p>
+                <ul className="mt-7 space-y-3">
+                  {PERKS.map((perk) => (
+                    <li key={perk} className="flex items-center gap-3 text-sm text-ink/75">
+                      <span className="grid size-5 shrink-0 place-items-center rounded-full border border-ink/15 text-ink">
+                        <Check className="size-3" strokeWidth={2.5} />
+                      </span>
+                      {perk}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-9">
+                <EnquiryDialog
+                  label="Send us an enquiry"
+                  trigger={{ size: "lg", className: "w-full" }}
+                />
               </div>
             </div>
           </Reveal>
@@ -91,8 +115,8 @@ function InfoRow({
   return (
     <Reveal>
       <div className="flex gap-4">
-        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand/15 text-brand-700">
-          <Icon className="size-5" />
+        <span className="grid size-11 shrink-0 place-items-center rounded-full border border-ink/15 text-ink">
+          <Icon className="size-5" strokeWidth={1.6} />
         </span>
         <div>
           <p className="text-sm font-semibold text-ink">{title}</p>

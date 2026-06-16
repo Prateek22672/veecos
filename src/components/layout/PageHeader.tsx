@@ -23,7 +23,7 @@ export function PageHeader({
   return (
     <section className="relative overflow-hidden bg-ink pt-32 pb-16 text-white sm:pt-36 sm:pb-20">
       <div className="pointer-events-none absolute inset-0 bg-grid opacity-[0.07]" />
-      <div className="pointer-events-none absolute -right-32 -top-24 size-[28rem] rounded-full bg-brand/20 blur-[110px]" />
+      <div className="pointer-events-none absolute -right-32 -top-24 size-[28rem] rounded-full bg-white/10 blur-[110px]" />
       <Container className="relative">
         {crumbs && (
           <Reveal>
@@ -32,7 +32,7 @@ export function PageHeader({
                 <span key={c.label} className="flex items-center gap-1.5">
                   {i > 0 && <ChevronRight className="size-3.5" />}
                   {c.href ? (
-                    <Link href={c.href} className="transition-colors hover:text-brand">
+                    <Link href={c.href} className="transition-colors hover:text-white">
                       {c.label}
                     </Link>
                   ) : (

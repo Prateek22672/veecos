@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
-import { Check } from "lucide-react";
 import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { Button } from "@/components/ui/Button";
+import { CtaBand } from "@/components/sections/CtaBand";
 import { cn } from "@/lib/cn";
 import { services } from "@/lib/content";
 import { images } from "@/lib/images";
 
 export const metadata: Metadata = {
-  title: "Services",
+  title: "Services — Commercial Kitchen Equipment Installation in Vizag",
   description:
-    "Veecos provides end-to-end commercial kitchen services since 1998 — kitchen design and planning, customised manufacturing, installation and commissioning, and pan-India after-sales support.",
+    "End-to-end commercial kitchen services in Visakhapatnam (Vizag) since 1998 — kitchen design & planning, customised manufacturing, on-site installation & commissioning, and pan-India after-sales support.",
+  keywords: [
+    "commercial kitchen equipment installation",
+    "commercial kitchen installation Vizag",
+    "kitchen design and planning Visakhapatnam",
+    "custom kitchen fabrication Andhra Pradesh",
+    "kitchen commissioning & after-sales service",
+  ],
   alternates: { canonical: "/services" },
 };
 
@@ -37,7 +43,7 @@ export default function ServicesPage() {
                 className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16"
               >
                 <Reveal className={cn(flip && "lg:order-2")}>
-                  <div className="relative aspect-[5/4] overflow-hidden rounded-[1.75rem] border border-line shadow-card">
+                  <div className="relative aspect-[5/4] overflow-hidden rounded-[1.75rem] bg-paper-2">
                     <SmartImage
                       src={s.image}
                       alt={s.title}
@@ -45,35 +51,35 @@ export default function ServicesPage() {
                       sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover"
                     />
-                    <span className="absolute left-5 top-5 grid size-14 place-items-center rounded-2xl bg-paper/90 text-xl font-bold text-ink backdrop-blur">
-                      {s.no}
-                    </span>
                   </div>
                 </Reveal>
 
                 <div className={cn(flip && "lg:order-1")}>
                   <Reveal>
-                    <span className="grid size-12 place-items-center rounded-xl bg-brand/15 text-brand-700">
-                      <s.icon className="size-6" strokeWidth={1.7} />
-                    </span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-[clamp(2.5rem,4vw,3.5rem)] font-medium leading-none tracking-[-0.03em] text-ink/15">
+                        {s.no}
+                      </span>
+                      <span className="grid size-12 place-items-center rounded-full border border-ink/15 text-ink">
+                        <s.icon className="size-5.5" strokeWidth={1.5} />
+                      </span>
+                    </div>
                   </Reveal>
                   <Reveal delay={0.05}>
-                    <h2 className="mt-5 text-2xl font-semibold text-ink sm:text-3xl">
+                    <h2 className="mt-6 text-[clamp(1.75rem,3vw,2.75rem)] font-medium leading-[1.05] tracking-[-0.02em] text-ink">
                       {s.title}
                     </h2>
                   </Reveal>
                   <Reveal delay={0.1}>
-                    <p className="mt-4 text-base leading-relaxed text-ink/65">
+                    <p className="mt-4 text-base leading-relaxed text-ink/60">
                       {s.description}
                     </p>
                   </Reveal>
-                  <ul className="mt-6 space-y-3">
+                  <ul className="mt-7 space-y-3.5 border-t border-ink/10 pt-7">
                     {s.points.map((p, j) => (
                       <Reveal key={p} delay={0.15 + j * 0.05}>
-                        <li className="flex items-center gap-3 text-sm text-ink/75">
-                          <span className="grid size-5 shrink-0 place-items-center rounded-full bg-brand text-ink">
-                            <Check className="size-3" strokeWidth={3} />
-                          </span>
+                        <li className="flex items-center gap-3.5 text-sm text-ink/70">
+                          <span className="size-1.5 shrink-0 rounded-full bg-ink" />
                           {p}
                         </li>
                       </Reveal>
@@ -86,28 +92,7 @@ export default function ServicesPage() {
         </Container>
       </section>
 
-      {/* CTA */}
-      <section className="bg-ink py-20 text-white sm:py-24">
-        <Container>
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold sm:text-4xl">
-              Ready to plan your commercial kitchen?
-            </h2>
-            <p className="mt-5 text-base leading-relaxed text-white/65">
-              Tell us about your space and requirements — our team will help you
-              design an efficient, durable kitchen that fits your budget.
-            </p>
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <Button href="/contact" size="lg" withArrow>
-                Get a free quote
-              </Button>
-              <Button href="/products" size="lg" variant="dark" className="bg-white/10 hover:bg-white/20">
-                Browse products
-              </Button>
-            </div>
-          </div>
-        </Container>
-      </section>
+      <CtaBand />
     </>
   );
 }

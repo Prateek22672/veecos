@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
+import { CardCarousel } from "@/components/ui/CardCarousel";
 import { services } from "@/lib/content";
 
 export function ServicesSection() {
@@ -24,7 +25,7 @@ export function ServicesSection() {
           </Reveal>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <CardCarousel gridClass="mt-14 lg:grid lg:grid-cols-4">
           {services.map((s, i) => (
             <Reveal key={s.no} delay={(i % 4) * 0.07}>
               <Link
@@ -44,17 +45,14 @@ export function ServicesSection() {
 
                 {/* content */}
                 <div className="relative z-10 flex flex-1 flex-col p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <span className="grid size-12 place-items-center rounded-2xl bg-brand text-ink shadow-[0_8px_20px_-8px_rgba(237,205,31,0.9)]">
-                      <s.icon className="size-6" strokeWidth={1.8} />
-                    </span>
-                    <span className="text-sm font-semibold tracking-widest text-white/40">
+                  <div className="flex justify-end">
+                    <span className="text-sm font-semibold tracking-[0.2em] text-white/45">
                       {s.no}
                     </span>
                   </div>
 
                   <div className="mt-auto pt-10">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
                       Service {s.no}
                     </p>
                     <h3 className="mt-2 text-xl font-semibold leading-tight">
@@ -63,7 +61,7 @@ export function ServicesSection() {
                     <p className="mt-2 text-sm leading-relaxed text-white/70">
                       {s.short}
                     </p>
-                    <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur transition-colors duration-300 group-hover:border-brand group-hover:bg-brand group-hover:text-ink">
+                    <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur transition-colors duration-300 group-hover:border-white group-hover:bg-white group-hover:text-ink">
                       Learn more
                       <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </span>
@@ -72,7 +70,7 @@ export function ServicesSection() {
               </Link>
             </Reveal>
           ))}
-        </div>
+        </CardCarousel>
       </Container>
     </section>
   );

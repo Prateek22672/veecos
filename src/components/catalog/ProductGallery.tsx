@@ -40,7 +40,7 @@ export function ProductGallery({
               className={cn(
                 "relative aspect-square overflow-hidden rounded-xl border bg-paper-2 transition-all",
                 active === i
-                  ? "border-brand ring-2 ring-brand/40"
+                  ? "border-ink ring-2 ring-ink/20"
                   : "border-line hover:border-ink/30",
               )}
             >
