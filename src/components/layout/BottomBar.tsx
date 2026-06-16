@@ -22,13 +22,11 @@ export function BottomBar() {
           Call us
         </a>
 
-        {/* Get a Quote — mobile only (desktop has it in the nav) */}
-        <span className="lg:hidden">
-          <EnquiryDialog
-            label="Get a Quote"
-            trigger={{ size: "md", withArrow: true, className: "h-10 px-5" }}
-          />
-        </span>
+        {/* Get a Quote — now beside "Call us" on every screen */}
+        <EnquiryDialog
+          label="Get a Quote"
+          trigger={{ size: "md", withArrow: true, className: "h-10 px-5" }}
+        />
       </div>
     </motion.div>
   );

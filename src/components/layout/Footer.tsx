@@ -9,7 +9,7 @@ import {
   Headset,
   type LucideIcon,
 } from "lucide-react";
-import { nav, site } from "@/lib/site";
+import { nav, site, whatsappUrl } from "@/lib/site";
 import { images } from "@/lib/images";
 import { Container } from "@/components/ui/Container";
 import { Logo } from "./Logo";
@@ -40,19 +40,23 @@ export function Footer() {
             </p>
           </div>
           <div className="flex items-center gap-2.5">
-            <Link
-              href="/contact"
+            <a
+              href={whatsappUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex h-13 items-center rounded-full border border-white/25 px-7 text-[15px] font-medium text-white transition-all duration-300 hover:bg-white hover:text-ink"
             >
               Schedule a consultation
-            </Link>
-            <Link
-              href="/contact"
-              aria-label="Contact us"
+            </a>
+            <a
+              href={whatsappUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Schedule a consultation on WhatsApp"
               className="grid size-13 shrink-0 place-items-center rounded-full border border-white/25 text-white transition-all duration-300 hover:bg-white hover:text-ink"
             >
               <ArrowUpRight className="size-5" />
-            </Link>
+            </a>
           </div>
         </div>
 

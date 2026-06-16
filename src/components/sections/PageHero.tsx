@@ -6,6 +6,7 @@ import { motion, useReducedMotion, type Variants } from "motion/react";
 import { ChevronRight, ArrowDown } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { CircularText } from "@/components/ui/CircularText";
+import { useSplashGate } from "@/lib/use-splash-gate";
 import { cn } from "@/lib/cn";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -44,9 +45,12 @@ export function PageHero({
   compact = false,
 }: PageHeroProps) {
   const reduce = useReducedMotion();
+  const ready = useSplashGate();
 
   return (
     <section className="relative w-full overflow-hidden">
+      {/* Image loads + settles during the splash (behind it) — only the text
+          below animates in once the splash lifts. */}
       <motion.div
         initial={reduce ? false : { scale: 1.08, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -71,7 +75,7 @@ export function PageHero({
           heading), bottom-right corner on large screens. */}
       <motion.div
         initial={reduce ? false : { opacity: 0, scale: 0.85 }}
-        animate={{ opacity: 1, scale: 1 }}
+        animate={ready ? { opacity: 1, scale: 1 } : undefined}
         transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
         className="pointer-events-none absolute right-3 top-28 z-10 text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.55)] sm:right-6 sm:top-32 lg:right-10 lg:top-auto lg:bottom-10"
       >
@@ -98,7 +102,7 @@ export function PageHero({
         <motion.div
           variants={container}
           initial="hidden"
-          animate="show"
+          animate={ready ? "show" : "hidden"}
           className="max-w-3xl"
         >
           {crumbs && (

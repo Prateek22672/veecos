@@ -4,6 +4,7 @@
    composition that must render exactly as designed (no next/image optimisation). */
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
+import { SPLASH_DONE_EVENT } from "@/lib/use-splash-gate";
 
 /**
  * Brand splash shown on every full page load / refresh. Renders the chef mark
@@ -20,6 +21,9 @@ export function SplashScreen() {
     const gone = setTimeout(() => {
       setPhase("gone");
       document.body.style.overflow = "";
+      // Signal heroes to begin their entrance now that the splash is gone.
+      (window as Window & { __splashDone?: boolean }).__splashDone = true;
+      window.dispatchEvent(new Event(SPLASH_DONE_EVENT));
     }, 1950);
     return () => {
       clearTimeout(leave);
@@ -60,18 +64,27 @@ export function SplashScreen() {
           <img
             src="/veecos-logo.png"
             alt="Veecos Logo"
-            className="absolute top-[19%] left-[63%] h-auto w-[22px] rotate-[18deg] opacity-95 mix-blend-multiply pointer-events-none"
+            className="absolute top-[20%] left-[70%] h-auto w-[22px] rotate-[18deg] opacity-95 mix-blend-multiply pointer-events-none"
           />
         </div>
 
-        {/* ── Wordmark ── */}
-        <div className="animate-splash-rise mt-6 text-center">
-          <p className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-            VEECOS
-          </p>
-          <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.32em] text-ink/45">
-            Canteen Equipments
-          </p>
+        {/* ── Official logo lockup (the brand mark — distinct from the chef art) ── */}
+        <div className="animate-splash-rise mt-7 flex items-center gap-3">
+          <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-full bg-white p-1.5 ring-1 ring-ink/10">
+            <img
+              src="/veecos-logo.png"
+              alt="Veecos logo"
+              className="size-full rounded-full object-contain"
+            />
+          </span>
+          <span className="flex flex-col text-left leading-none">
+            <span className="text-xl font-bold tracking-[-0.01em] text-ink">
+              VEECOS
+            </span>
+            <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.32em] text-ink/45">
+              Canteen Equipments
+            </span>
+          </span>
         </div>
 
         {/* ── Loading bar ── */}

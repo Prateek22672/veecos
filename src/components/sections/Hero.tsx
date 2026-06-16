@@ -16,6 +16,7 @@ import { images } from "@/lib/images";
 import { BlurText } from "@/components/ui/BlurText";
 import { CircularText } from "@/components/ui/CircularText";
 import { EnquiryDialog } from "@/components/contact/EnquiryDialog";
+import { useSplashGate } from "@/lib/use-splash-gate";
 
 const TRUST = [
   "25+ Years Experience",
@@ -36,6 +37,8 @@ const fadeUp: Variants = {
 
 export function Hero() {
   const reduce = useReducedMotion();
+  // Hero entrance waits until the splash screen has finished.
+  const ready = useSplashGate();
   // Sentinel at the hero's end drives the fixed seal's fade-out.
   const heroEndRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -47,10 +50,12 @@ export function Hero() {
 
   return (
     <>
-      {/* Fixed rotating seal — balances the right side, fades at hero end */}
+      {/* Fixed rotating seal — balances the right side, fades at hero end.
+          Hidden on small phones: the hero text fills the height there, leaving
+          no room for it without overlapping the headline / CTAs. */}
       <motion.div
         style={{ opacity: reduce ? 1 : sealOpacity, y: reduce ? 0 : sealY }}
-        className="fixed right-3 top-[18%] z-40 text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.6)] sm:right-5 sm:top-32 lg:right-7"
+        className="fixed right-5 top-32 z-40 hidden text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.6)] sm:block lg:right-7"
       >
         <Link
           href="#work"
@@ -75,6 +80,8 @@ export function Hero() {
         (sticky) while the "Our work" panel scrolls up and stacks over it.
       */}
       <div className="sticky top-0 z-0 h-[88svh] w-full overflow-hidden">
+        {/* Image loads + settles during the splash (behind it), so it's already
+            in place when the splash lifts — only the text animates in after. */}
         <motion.div
           initial={reduce ? false : { scale: 1.08, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -99,7 +106,7 @@ export function Hero() {
           <motion.div
             variants={container}
             initial="hidden"
-            animate="show"
+            animate={ready ? "show" : "hidden"}
             className="max-w-3xl"
           >
             <motion.span
@@ -116,12 +123,14 @@ export function Hero() {
                 animateBy="words"
                 delay={120}
                 stepDuration={0.4}
+                start={ready}
               />
               <BlurText
                 text="built for high volume."
                 animateBy="words"
                 delay={120}
                 stepDuration={0.4}
+                start={ready}
               />
             </h1>
 

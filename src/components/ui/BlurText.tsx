@@ -32,6 +32,7 @@ export function BlurText({
   rootMargin = "0px",
   stepDuration = 0.35,
   onAnimationComplete,
+  start = true,
 }: {
   text?: string;
   delay?: number;
@@ -42,6 +43,8 @@ export function BlurText({
   rootMargin?: string;
   stepDuration?: number;
   onAnimationComplete?: () => void;
+  /** Hold in the "before" state until true — used to wait for the splash. */
+  start?: boolean;
 }) {
   const elements = animateBy === "words" ? text.split(" ") : text.split("");
   const [inView, setInView] = useState(false);
@@ -93,7 +96,7 @@ export function BlurText({
             key={index}
             className="inline-block will-change-[transform,filter,opacity]"
             initial={from}
-            animate={inView ? keyframes : from}
+            animate={inView && start ? keyframes : from}
             transition={{
               duration: totalDuration,
               times,

@@ -14,6 +14,8 @@ export const site = {
   description:
     "Veecos Canteen Equipments — leading manufacturer of commercial kitchen equipment in Visakhapatnam (Vizag) since 1998. Cooking ranges, exhaust hoods, refrigeration, wash-area equipment, installation and complete turn-key kitchen projects across Andhra Pradesh & Telangana.",
   phones: ["+91 9848196184", "+91 9581396184"],
+  /** WhatsApp number in international digits only (for wa.me links). */
+  whatsapp: "919581396184",
   emails: ["sales@vce.co.in", "info@vce.co.in", "veecos@yahoo.co.in"],
   quoteEmail: "sales@vce.co.in",
   address: {
@@ -28,6 +30,15 @@ export const site = {
     linkedin: "https://linkedin.com",
   },
 } as const;
+
+/** Default WhatsApp "schedule a call" message, shared across CTAs. */
+export const WHATSAPP_MESSAGE =
+  "Hi Veecos, I'd like to schedule a call to discuss my commercial kitchen requirements. When would be a good time to connect?";
+
+/** Build a wa.me chat link to the business number with a prefilled message. */
+export function whatsappUrl(message: string = WHATSAPP_MESSAGE): string {
+  return `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`;
+}
 
 export const nav = [
   { label: "Home", href: "/" },
