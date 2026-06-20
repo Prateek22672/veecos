@@ -33,6 +33,7 @@ export function BlurText({
   stepDuration = 0.35,
   onAnimationComplete,
   start = true,
+  wrap = true,
 }: {
   text?: string;
   delay?: number;
@@ -45,6 +46,8 @@ export function BlurText({
   onAnimationComplete?: () => void;
   /** Hold in the "before" state until true — used to wait for the splash. */
   start?: boolean;
+  /** When false, the phrase stays on a single line (no wrapping). */
+  wrap?: boolean;
 }) {
   const elements = animateBy === "words" ? text.split(" ") : text.split("");
   const [inView, setInView] = useState(false);
@@ -88,7 +91,7 @@ export function BlurText({
   );
 
   return (
-    <span ref={ref} className={cn("flex flex-wrap", className)}>
+    <span ref={ref} className={cn("flex", wrap ? "flex-wrap" : "whitespace-nowrap", className)}>
       {elements.map((segment, index) => {
         const keyframes = buildKeyframes(from, to);
         return (

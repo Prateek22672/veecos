@@ -107,7 +107,7 @@ export function Hero() {
             variants={container}
             initial="hidden"
             animate={ready ? "show" : "hidden"}
-            className="max-w-3xl"
+            className="max-w-3xl @container"
           >
             <motion.span
               variants={fadeUp}
@@ -117,13 +117,14 @@ export function Hero() {
               Turn-key commercial kitchens
             </motion.span>
 
-            <h1 className="mt-5 text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[0.95] tracking-tight text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">
+            <h1 className="mt-5 text-[clamp(1.5rem,8.5cqi,4rem)] font-medium leading-[1.0] tracking-tight text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">
               <BlurText
                 text="Commercial kitchens"
                 animateBy="words"
                 delay={120}
                 stepDuration={0.4}
                 start={ready}
+                wrap={false}
               />
               <BlurText
                 text="built for high volume."
@@ -131,6 +132,7 @@ export function Hero() {
                 delay={120}
                 stepDuration={0.4}
                 start={ready}
+                wrap={false}
               />
             </h1>
 

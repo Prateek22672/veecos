@@ -65,9 +65,10 @@ export function ProductCard({
             {firstSpec[1]}
           </p>
         )}
-        <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-ink/70">
+        {/* CTA — always visible on touch; reveals on hover on desktop */}
+        <span className="mt-4 inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-ink text-sm font-semibold text-paper transition-all duration-300 group-hover:bg-charcoal lg:translate-y-1 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">
           View details
-          <span className="h-px w-5 bg-ink/40 transition-all duration-300 group-hover:w-8" />
+          <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>
       </div>
     </Link>

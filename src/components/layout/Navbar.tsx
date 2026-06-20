@@ -102,12 +102,16 @@ export function Navbar({ productMenu }: { productMenu?: MenuCard[] }) {
         </Container>
       </div>
 
-      {/* Nav row — full-width bar → floating pill on scroll */}
+      {/* Nav row — full-width frosted bar → floating pill on scroll.
+          When not scrolled the background + border span the full width (outer),
+          while the content stays centered at max-w-7xl (matches Container). */}
       <div
         onMouseLeave={() => setActiveMenu(null)}
         className={cn(
           "relative z-50 transition-all duration-500",
-          pill ? "px-3 pt-3 sm:px-5 sm:pt-4" : "px-0 pt-0",
+          pill
+            ? "px-3 pt-3 sm:px-5 sm:pt-4"
+            : "border-b border-ink/[0.06] bg-white/[0.88] backdrop-blur-md",
         )}
       >
         <div
@@ -115,7 +119,7 @@ export function Navbar({ productMenu }: { productMenu?: MenuCard[] }) {
             "mx-auto grid grid-cols-[1fr_auto_1fr] items-center transition-all duration-500",
             pill
               ? "h-16 max-w-6xl rounded-full border border-ink/10 bg-white/95 px-5 shadow-[0_16px_44px_-18px_rgba(20,20,15,0.35)] backdrop-blur-xl"
-              : "h-16 max-w-7xl border-b border-ink/[0.06] bg-white/[0.88] px-5 backdrop-blur-md sm:h-[4.5rem] sm:px-8 lg:px-12",
+              : "h-16 max-w-7xl px-5 sm:h-[4.5rem] sm:px-8 lg:px-12",
           )}
         >
           <div className="col-start-1 flex justify-start">

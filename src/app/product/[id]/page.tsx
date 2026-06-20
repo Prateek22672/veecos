@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Settings2, CheckCircle2, XCircle, Phone, ArrowLeft } from "lucide-react";
+import { Settings2, CheckCircle2, XCircle, Phone, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { Eyebrow } from "@/components/ui/SectionHeading";
 import { ProductGallery } from "@/components/catalog/ProductGallery";
-import { LeadForm } from "@/components/contact/LeadForm";
-import { getProduct, bareId, prettify } from "@/lib/api";
+import { ProductCard } from "@/components/catalog/ProductCard";
+import { Certifications } from "@/components/sections/Certifications";
+import { EnquiryDialog } from "@/components/contact/EnquiryDialog";
+import { getProduct, getAllProducts, resolveCategory, bareId } from "@/lib/api";
 import { site } from "@/lib/site";
 import {
   productMetadata,
@@ -34,7 +37,18 @@ export default async function ProductPage({ params }: Params) {
   const specs = product.Specs ? Object.entries(product.Specs) : [];
   const available = product.IsAvailable !== false;
 
-  const categoryName = categoryId ? prettify(categoryId) : undefined;
+  // Resolve the real category name (never show the raw id/hash to users).
+  const category = categoryId ? await resolveCategory(categoryId) : null;
+  const categoryName = category?.Name;
+
+  // Related products from the same category.
+  const catKey = product.CategoryId ?? categoryId ?? undefined;
+  const allProducts = await getAllProducts();
+  const related = catKey
+    ? allProducts
+        .filter((p) => p.CategoryId === catKey && bareId(p.PK) !== id)
+        .slice(0, 8)
+    : [];
 
   const productJsonLd = {
     "@context": "https://schema.org",
@@ -81,20 +95,37 @@ export default async function ProductPage({ params }: Params) {
         }}
       />
 
-      {/* slim header */}
-      <div className="bg-ink pt-28 pb-6 text-white sm:pt-32">
+      {/* Breadcrumb */}
+      <div className="bg-white pt-28 sm:pt-32">
         <Container>
-          <Link
-            href={categoryId ? `/products/${categoryId}` : "/products"}
-            className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
-          >
-            <ArrowLeft className="size-4" />
-            Back to {categoryId ? prettify(categoryId) : "products"}
-          </Link>
+          <nav className="flex flex-wrap items-center gap-1.5 text-xs text-ink/45">
+            <Link href="/" className="transition-colors hover:text-ink">
+              Home
+            </Link>
+            <ChevronRight className="size-3.5 text-ink/30" />
+            <Link href="/products" className="transition-colors hover:text-ink">
+              Products
+            </Link>
+            {categoryName && categoryId && (
+              <>
+                <ChevronRight className="size-3.5 text-ink/30" />
+                <Link
+                  href={`/products/${categoryId}`}
+                  className="transition-colors hover:text-ink"
+                >
+                  {categoryName}
+                </Link>
+              </>
+            )}
+            <ChevronRight className="size-3.5 text-ink/30" />
+            <span className="max-w-[16rem] truncate text-ink/70">
+              {product.Name}
+            </span>
+          </nav>
         </Container>
       </div>
 
-      <section className="bg-paper py-12 sm:py-16">
+      <section className="bg-white pb-12 pt-6 sm:pb-16">
         <Container>
           <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
             {/* Gallery */}
@@ -128,7 +159,7 @@ export default async function ProductPage({ params }: Params) {
                 {product.Name}
               </h1>
               {product.Description && (
-                <p className="mt-4 text-base leading-relaxed text-ink/65">
+                <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-ink/65">
                   {product.Description}
                 </p>
               )}
@@ -139,7 +170,7 @@ export default async function ProductPage({ params }: Params) {
                   <h2 className="text-sm font-semibold uppercase tracking-wider text-ink/50">
                     Specifications
                   </h2>
-                  <dl className="mt-4 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+                  <dl className="mt-4 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-paper-2">
                     {specs.map(([key, value]) => (
                       <div
                         key={key}
@@ -153,55 +184,72 @@ export default async function ProductPage({ params }: Params) {
                 </div>
               )}
 
-              <div className="mt-8 rounded-2xl border border-ink/10 bg-paper-2 p-5">
-                <p className="text-sm text-ink/75">
-                  Pricing is quoted per project and configuration. Send an enquiry
-                  below or call{" "}
-                  <a
-                    href={`tel:${site.phones[0].replace(/\s/g, "")}`}
-                    className="font-semibold text-ink underline underline-offset-4"
-                  >
-                    {site.phones[0]}
-                  </a>{" "}
-                  for a fast quote.
-                </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <EnquiryDialog
+                  label="Request a quote"
+                  productId={id}
+                  productName={product.Name}
+                  trigger={{ size: "lg", className: "w-full sm:w-auto" }}
+                />
+                <a
+                  href={`tel:${site.phones[0].replace(/\s/g, "")}`}
+                  className="inline-flex h-13 items-center justify-center gap-2 rounded-full border border-ink/20 px-7 text-[15px] font-medium text-ink transition-colors hover:bg-ink hover:text-paper"
+                >
+                  <Phone className="size-4" strokeWidth={1.8} />
+                  {site.phones[0]}
+                </a>
               </div>
+              <p className="mt-3 text-sm text-ink/55">
+                Pricing is quoted per project &amp; configuration — we reply within
+                one business day.
+              </p>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* Enquiry */}
-      <section className="bg-paper-2 py-16 sm:py-24">
+      {/* Related products from the same category */}
+      {related.length > 0 && (
+        <section className="bg-paper-2 py-14 sm:py-20">
+          <Container>
+            <Eyebrow>Related products</Eyebrow>
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+              {related.slice(0, 4).map((p) => (
+                <ProductCard key={p.PK} product={p} eyebrow={categoryName} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
+      {/* Certifications — common to every product */}
+      <Certifications />
+
+      {/* Enquiry CTA — opens the quote wizard, pre-filled with this product */}
+      <section className="bg-white pb-16 pt-4 sm:pb-24">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
-            <div>
-              <h2 className="text-3xl font-semibold leading-[1.1] text-ink sm:text-4xl">
-                Enquire about this product
-              </h2>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-ink/65">
-                Tell us your requirements — capacity, dimensions, finishes — and our
-                team will get back with a tailored quote for the{" "}
-                <span className="font-medium text-ink">{product.Name}</span>.
-              </p>
+          <div className="relative overflow-hidden rounded-[2rem] bg-ink px-8 py-12 text-center text-paper sm:px-12 sm:py-16">
+            <h2 className="mx-auto max-w-2xl text-[clamp(1.75rem,4vw,2.75rem)] font-semibold leading-tight tracking-tight">
+              Interested in the {product.Name}?
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-paper/65">
+              Tell us your requirements — capacity, dimensions &amp; finishes — and
+              our team will send a tailored quote within one business day.
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <EnquiryDialog
+                label="Request a quote"
+                productId={id}
+                productName={product.Name}
+                trigger={{ variant: "white", size: "lg" }}
+              />
               <a
                 href={`tel:${site.phones[0].replace(/\s/g, "")}`}
-                className="mt-8 inline-flex items-center gap-3 rounded-2xl border border-ink/10 bg-white p-4 transition-colors hover:border-ink/30"
+                className="inline-flex h-13 items-center justify-center gap-2 rounded-full border border-white/30 px-7 text-[15px] font-medium text-white transition-colors hover:bg-white hover:text-ink"
               >
-                <span className="grid size-11 place-items-center rounded-full border border-ink/15 text-ink">
-                  <Phone className="size-5" strokeWidth={1.6} />
-                </span>
-                <span>
-                  <span className="block text-xs text-ink/55">Call us directly</span>
-                  <span className="block text-sm font-semibold text-ink">
-                    {site.phones[0]}
-                  </span>
-                </span>
+                <Phone className="size-4" strokeWidth={1.8} />
+                Call {site.phones[0]}
               </a>
-            </div>
-
-            <div className="rounded-3xl border border-line bg-white p-6 shadow-card sm:p-9">
-              <LeadForm productId={id} productName={product.Name} />
             </div>
           </div>
         </Container>
