@@ -26,7 +26,7 @@ export type { ApiEnvelope, Category, Product, CatalogNode, LeadPayload };
 export const API_BASE =
   process.env.API_BASE ??
   process.env.NEXT_PUBLIC_API_BASE ??
-  "https://vs1aoaj0t2.execute-api.ap-south-1.amazonaws.com";
+  "https://mbevr3vs87.execute-api.ap-south-1.amazonaws.com";
 
 const REQUEST_TIMEOUT_MS = 8000;
 const MAX_ATTEMPTS = 2;
