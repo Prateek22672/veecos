@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo-config";
 import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
@@ -8,19 +8,7 @@ import { cn } from "@/lib/cn";
 import { services } from "@/lib/content";
 import { images } from "@/lib/images";
 
-export const metadata: Metadata = {
-  title: "Services — Commercial Kitchen Equipment Installation in Vizag",
-  description:
-    "End-to-end commercial kitchen services in Visakhapatnam (Vizag) since 1998 — kitchen design & planning, customised manufacturing, on-site installation & commissioning, and pan-India after-sales support.",
-  keywords: [
-    "commercial kitchen equipment installation",
-    "commercial kitchen installation Vizag",
-    "kitchen design and planning Visakhapatnam",
-    "custom kitchen fabrication Andhra Pradesh",
-    "kitchen commissioning & after-sales service",
-  ],
-  alternates: { canonical: "/services" },
-};
+export const metadata = pageMetadata("services");
 
 export default function ServicesPage() {
   return (

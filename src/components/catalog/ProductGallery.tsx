@@ -15,22 +15,25 @@ export function ProductGallery({
   const list = images.length ? images : [""];
 
   return (
-    <div>
-      <div className="relative aspect-square overflow-hidden rounded-3xl border border-line bg-paper-2 shadow-soft">
-        <SmartImage
-          key={active}
-          src={list[active]}
-          alt={alt}
-          fill
-          priority
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          fallbackLabel={alt}
-          className="object-cover"
-        />
+    <div className="lg:sticky lg:top-24">
+      {/* Main — the whole product shown (contain) on a clean padded frame */}
+      <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl border border-line bg-white p-4 shadow-soft sm:p-8 lg:max-w-none">
+        <div className="relative h-full w-full">
+          <SmartImage
+            key={active}
+            src={list[active]}
+            alt={alt}
+            fill
+            priority
+            sizes="(max-width: 1024px) 90vw, 42vw"
+            fallbackLabel={alt}
+            className="object-contain"
+          />
+        </div>
       </div>
 
       {list.length > 1 && (
-        <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5">
+        <div className="mx-auto mt-4 grid max-w-md grid-cols-5 gap-2.5 sm:grid-cols-6 lg:max-w-none">
           {list.map((img, i) => (
             <button
               key={i}
@@ -38,19 +41,21 @@ export function ProductGallery({
               onClick={() => setActive(i)}
               aria-label={`View image ${i + 1}`}
               className={cn(
-                "relative aspect-square overflow-hidden rounded-xl border bg-paper-2 transition-all",
+                "relative aspect-square overflow-hidden rounded-lg border bg-white p-1.5 transition-all",
                 active === i
-                  ? "border-ink ring-2 ring-ink/20"
+                  ? "border-ink ring-2 ring-ink/15"
                   : "border-line hover:border-ink/30",
               )}
             >
-              <SmartImage
-                src={img}
-                alt={`${alt} thumbnail ${i + 1}`}
-                fill
-                sizes="120px"
-                className="object-cover"
-              />
+              <div className="relative h-full w-full">
+                <SmartImage
+                  src={img}
+                  alt={`${alt} thumbnail ${i + 1}`}
+                  fill
+                  sizes="80px"
+                  className="object-contain"
+                />
+              </div>
             </button>
           ))}
         </div>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo-config";
 import { Hero } from "@/components/sections/Hero";
 import { HeroClients } from "@/components/sections/HeroClients";
 import { KitchenShowcase } from "@/components/sections/KitchenShowcase";
@@ -10,15 +10,7 @@ import { ClientsSection } from "@/components/sections/ClientsSection";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { CtaBand } from "@/components/sections/CtaBand";
 
-export const metadata: Metadata = {
-  title: {
-    absolute:
-      "Veecos — Best Commercial Kitchen Equipment Manufacturer in Visakhapatnam (Vizag)",
-  },
-  description:
-    "Veecos Canteen Equipments — Visakhapatnam's trusted commercial kitchen equipment manufacturer since 1998. Cooking ranges, exhaust hoods, refrigeration & wash-area equipment with end-to-end design, fabrication and installation across Vizag, Andhra Pradesh & Telangana.",
-  alternates: { canonical: "/" },
-};
+export const metadata = pageMetadata("home");
 
 export default function HomePage() {
   return (

@@ -1,9 +1,14 @@
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { StaggerTestimonials } from "@/components/ui/StaggerTestimonials";
-import { testimonials } from "@/lib/content";
+import { getTestimonials } from "@/lib/api";
+import { testimonials as fallbackTestimonials } from "@/lib/content";
 
-export function TestimonialsSection() {
+export async function TestimonialsSection() {
+  // Live from the admin panel; fall back to the built-in set if none/unavailable.
+  const fetched = await getTestimonials();
+  const items = fetched.length > 0 ? fetched : fallbackTestimonials;
+
   return (
     <section className="overflow-hidden bg-paper-2 py-20 sm:py-28">
       <Container>
@@ -15,7 +20,7 @@ export function TestimonialsSection() {
         />
       </Container>
       <div className="mt-12">
-        <StaggerTestimonials items={testimonials} />
+        <StaggerTestimonials items={items} />
       </div>
     </section>
   );

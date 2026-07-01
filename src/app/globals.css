@@ -199,7 +199,109 @@ html.lenis body {
 }
 .animate-splash-bar {
   transform-origin: left;
-  animation: splash-bar 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+  animation: splash-bar 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+}
+
+/* ── Rich text (admin product descriptions) ── */
+.rich-text {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: color-mix(in oklab, var(--color-ink) 68%, transparent);
+}
+.rich-text > * + * {
+  margin-top: 0.9em;
+}
+.rich-text h1,
+.rich-text h2,
+.rich-text h3,
+.rich-text h4 {
+  color: var(--color-ink);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin-top: 1.4em;
+}
+.rich-text h1 {
+  font-size: 1.5rem;
+}
+.rich-text h2 {
+  font-size: 1.3rem;
+}
+.rich-text h3 {
+  font-size: 1.125rem;
+}
+.rich-text h4 {
+  font-size: 1rem;
+}
+.rich-text strong,
+.rich-text b {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.rich-text a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rich-text a:hover {
+  opacity: 0.7;
+}
+.rich-text ul,
+.rich-text ol {
+  padding-left: 1.3rem;
+}
+.rich-text ul {
+  list-style: disc;
+}
+.rich-text ol {
+  list-style: decimal;
+}
+.rich-text li {
+  margin-top: 0.35em;
+}
+.rich-text li::marker {
+  color: color-mix(in oklab, var(--color-ink) 45%, transparent);
+}
+.rich-text blockquote {
+  border-left: 3px solid var(--color-line);
+  padding-left: 1rem;
+  font-style: italic;
+  color: color-mix(in oklab, var(--color-ink) 60%, transparent);
+}
+.rich-text hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 1.6em 0;
+}
+.rich-text code {
+  background: var(--color-paper-2);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+.rich-text .rich-table {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-line);
+  -webkit-overflow-scrolling: touch;
+}
+.rich-text table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.rich-text th,
+.rich-text td {
+  border: 1px solid var(--color-line);
+  padding: 0.55rem 0.85rem;
+  text-align: left;
+  vertical-align: top;
+}
+.rich-text th {
+  background: var(--color-paper-2);
+  font-weight: 600;
+  color: var(--color-ink);
 }
 
 @media (prefers-reduced-motion: reduce) {

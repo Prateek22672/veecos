@@ -17,14 +17,14 @@ export function SplashScreen() {
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    const leave = setTimeout(() => setPhase("leaving"), 1300);
+    const leave = setTimeout(() => setPhase("leaving"), 1000);
     const gone = setTimeout(() => {
       setPhase("gone");
       document.body.style.overflow = "";
       // Signal heroes to begin their entrance now that the splash is gone.
       (window as Window & { __splashDone?: boolean }).__splashDone = true;
       window.dispatchEvent(new Event(SPLASH_DONE_EVENT));
-    }, 1950);
+    }, 1500);
     return () => {
       clearTimeout(leave);
       clearTimeout(gone);

@@ -102,7 +102,7 @@ export default async function CategoryPage({ params }: Params) {
       />
 
       {/* Header */}
-      <section className="bg-paper pt-28 sm:pt-32">
+      <section className="bg-paper pb-8 pt-28 sm:pb-10 sm:pt-32">
         <Container>
           <nav className="flex flex-wrap items-center gap-1.5 text-xs text-ink/45">
             <Link href="/products" className="transition-colors hover:text-ink">
@@ -132,7 +132,7 @@ export default async function CategoryPage({ params }: Params) {
 
       <CategoryNav tree={tree} activeId={id} />
 
-      <section className="bg-paper py-10 sm:py-14">
+      <section className="bg-paper py-14 sm:py-20">
         <Container>
           {isMain ? (
             <>

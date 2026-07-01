@@ -13,15 +13,15 @@ type SplashWindow = Window & { __splashDone?: boolean };
  * immediately on later client navigations (the splash only runs on full load).
  */
 export function useSplashGate(): boolean {
-  const [ready, setReady] = useState(false);
+  // Read the flag lazily — true immediately on client navigations (SSR = false).
+  const [ready, setReady] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      !!(window as SplashWindow).__splashDone,
+  );
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const w = window as SplashWindow;
-    if (w.__splashDone) {
-      setReady(true);
-      return;
-    }
+    if (ready) return;
     const onDone = () => setReady(true);
     window.addEventListener(SPLASH_DONE_EVENT, onDone);
     // Safety net: never leave the hero hidden if the splash signal is missed.
@@ -30,7 +30,7 @@ export function useSplashGate(): boolean {
       window.removeEventListener(SPLASH_DONE_EVENT, onDone);
       clearTimeout(fallback);
     };
-  }, []);
+  }, [ready]);
 
   return ready;
 }

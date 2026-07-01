@@ -15,83 +15,62 @@ export function ProductCard({
   eyebrow?: string;
 }) {
   const id = bareId(product.PK);
-  const img = product.Images?.[0] || categoryVisual(product.Name, product.Slug).image;
+  const img =
+    product.Images?.[0] || categoryVisual(product.Name, product.Slug).image;
   const firstSpec = product.Specs ? Object.entries(product.Specs)[0] : undefined;
+  const available = product.IsAvailable !== false;
 
   return (
     <Link
       href={`/product/${id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white transition-all duration-400 hover:-translate-y-1 hover:shadow-card"
+      className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-white transition-all duration-300 hover:border-ink/25 hover:shadow-[0_22px_50px_-32px_rgba(20,20,15,0.5)]"
     >
-      <div className="relative aspect-square overflow-hidden bg-paper-2">
-        <SmartImage
-          src={img}
-          alt={productAlt(product.Name)}
-          fill
-          priority={priority}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          fallbackLabel={product.Name}
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        />
-        <div className="absolute left-3 top-3 flex gap-2">
-          {product.IsAvailable === false ? (
-            <Badge tone="muted">Out of stock</Badge>
-          ) : (
-            <Badge tone="ok">Available</Badge>
-          )}
-          {product.IsCustomizable && (
-            <Badge tone="brand">
-              <Settings2 className="size-3" /> Custom
-            </Badge>
-          )}
+      <div className="relative aspect-square overflow-hidden bg-paper-2 p-3">
+        <div className="relative h-full w-full">
+          <SmartImage
+            src={img}
+            alt={productAlt(product.Name)}
+            fill
+            priority={priority}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            fallbackLabel={product.Name}
+            className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          />
         </div>
-        <span className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-paper/90 text-ink opacity-0 backdrop-blur transition-all duration-300 group-hover:opacity-100">
-          <ArrowUpRight className="size-4" />
-        </span>
+
+        {product.IsCustomizable && (
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink backdrop-blur">
+            <Settings2 className="size-3" /> Custom
+          </span>
+        )}
+
+        {!available && (
+          <span className="absolute inset-0 grid place-items-center bg-white/65 text-xs font-semibold uppercase tracking-wide text-ink backdrop-blur-[1px]">
+            Out of stock
+          </span>
+        )}
       </div>
 
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-4">
         {eyebrow && (
-          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink/40">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/40">
             {eyebrow}
           </p>
         )}
-        <h3 className="text-[15px] font-medium leading-snug tracking-tight text-ink">
+        <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-snug text-ink">
           {product.Name}
         </h3>
         {firstSpec && (
-          <p className="mt-2 text-xs text-ink/55">
-            <span className="font-medium text-ink/70">{firstSpec[0]}:</span>{" "}
+          <p className="mt-1.5 line-clamp-1 text-xs text-ink/50">
+            <span className="font-medium text-ink/65">{firstSpec[0]}:</span>{" "}
             {firstSpec[1]}
           </p>
         )}
-        {/* CTA — always visible on touch; reveals on hover on desktop */}
-        <span className="mt-4 inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-ink text-sm font-semibold text-paper transition-all duration-300 group-hover:bg-charcoal lg:translate-y-1 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">
+        <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-[13px] font-medium text-ink/60 transition-colors group-hover:text-ink">
           View details
-          <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>
       </div>
     </Link>
-  );
-}
-
-function Badge({
-  children,
-  tone,
-}: {
-  children: React.ReactNode;
-  tone: "ok" | "muted" | "brand";
-}) {
-  const tones = {
-    ok: "bg-white/90 text-ink",
-    muted: "bg-ink/80 text-white",
-    brand: "bg-ink text-white",
-  } as const;
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide backdrop-blur ${tones[tone]}`}
-    >
-      {children}
-    </span>
   );
 }

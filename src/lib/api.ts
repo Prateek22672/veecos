@@ -224,6 +224,61 @@ export const getSearchItems = cache(async (): Promise<SearchIndexItem[]> => {
 });
 
 /* ------------------------------------------------------------------ */
+/*  Testimonials — managed from the admin panel (GET /testimonials).    */
+/* ------------------------------------------------------------------ */
+
+export interface Testimonial {
+  quote: string;
+  name: string;
+  role: string;
+}
+
+/** First non-empty string among the given keys (case/shape tolerant). */
+function pickStr(o: Record<string, unknown>, keys: string[]): string {
+  for (const k of keys) {
+    const v = o[k];
+    if (typeof v === "string" && v.trim()) return v.trim();
+  }
+  return "";
+}
+
+/**
+ * Live testimonials from the admin panel. Maps flexibly across possible field
+ * names. Returns [] if the endpoint is empty/unavailable so the caller can fall
+ * back to the built-in set.
+ */
+export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
+  const json = await getJson<unknown>("/testimonials");
+  const data = json?.data as unknown;
+  const list: Record<string, unknown>[] = Array.isArray(data)
+    ? (data as Record<string, unknown>[])
+    : Array.isArray((data as { testimonials?: unknown[] })?.testimonials)
+      ? ((data as { testimonials: Record<string, unknown>[] }).testimonials)
+      : [];
+
+  return list
+    .map((o) => ({
+      quote: pickStr(o, [
+        "quote", "Quote", "message", "Message", "text", "Text",
+        "review", "Review", "content", "Content", "Testimonial", "Feedback",
+      ]),
+      name: pickStr(o, [
+        "name", "Name", "author", "Author", "clientName", "ClientName", "customer", "Customer",
+      ]),
+      role: pickStr(o, [
+        "role", "Role", "designation", "Designation", "company", "Company",
+        "title", "Title", "organisation", "Organisation", "organization", "Organization",
+      ]),
+    }))
+    .filter((t) => t.quote.length > 0)
+    .map((t) => ({
+      quote: t.quote,
+      name: t.name || "Veecos Client",
+      role: t.role || "Verified customer",
+    }));
+});
+
+/* ------------------------------------------------------------------ */
 /*  Leads — server-side forward (called from the /api/leads route).     */
 /* ------------------------------------------------------------------ */
 

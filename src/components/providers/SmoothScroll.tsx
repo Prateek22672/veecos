@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 
 /**
@@ -10,6 +11,9 @@ import Lenis from "lenis";
  * (and motion/react's useScroll) keep working.
  */
 export function SmoothScroll() {
+  const lenisRef = useRef<Lenis | null>(null);
+  const pathname = usePathname();
+
   useEffect(() => {
     if (
       typeof window === "undefined" ||
@@ -24,6 +28,7 @@ export function SmoothScroll() {
       smoothWheel: true,
       touchMultiplier: 1.5,
     });
+    lenisRef.current = lenis;
 
     // Expose so overlays (e.g. Modal) can pause/resume page scroll while open.
     (window as unknown as { lenis?: Lenis }).lenis = lenis;
@@ -38,9 +43,20 @@ export function SmoothScroll() {
     return () => {
       cancelAnimationFrame(frame);
       lenis.destroy();
+      lenisRef.current = null;
       (window as unknown as { lenis?: Lenis }).lenis = undefined;
     };
   }, []);
+
+  // Reset to the top on every route change — Lenis otherwise keeps the previous
+  // scroll position, so a new page (e.g. a product) would open mid-scroll.
+  useEffect(() => {
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true });
+    } else if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname]);
 
   return null;
 }

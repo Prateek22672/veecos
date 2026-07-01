@@ -7,6 +7,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Eyebrow } from "@/components/ui/SectionHeading";
 import { ProductGallery } from "@/components/catalog/ProductGallery";
 import { ProductCard } from "@/components/catalog/ProductCard";
+import { RichText } from "@/components/ui/RichText";
 import { Certifications } from "@/components/sections/Certifications";
 import { EnquiryDialog } from "@/components/contact/EnquiryDialog";
 import { getProduct, getAllProducts, resolveCategory, bareId } from "@/lib/api";
@@ -159,9 +160,7 @@ export default async function ProductPage({ params }: Params) {
                 {product.Name}
               </h1>
               {product.Description && (
-                <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-ink/65">
-                  {product.Description}
-                </p>
+                <RichText html={product.Description} className="mt-4" />
               )}
 
               {/* Specs */}
@@ -210,7 +209,7 @@ export default async function ProductPage({ params }: Params) {
 
       {/* Related products from the same category */}
       {related.length > 0 && (
-        <section className="bg-paper-2 py-14 sm:py-20">
+        <section className="bg-white py-12 sm:py-16">
           <Container>
             <Eyebrow>Related products</Eyebrow>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
@@ -223,7 +222,7 @@ export default async function ProductPage({ params }: Params) {
       )}
 
       {/* Certifications — common to every product */}
-      <Certifications />
+      <Certifications tone="white" />
 
       {/* Enquiry CTA — opens the quote wizard, pre-filled with this product */}
       <section className="bg-white pb-16 pt-4 sm:pb-24">

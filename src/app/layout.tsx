@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { BottomBar } from "@/components/layout/BottomBar";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { SplashScreen } from "@/components/providers/SplashScreen";
+import { SeoOverrides } from "@/components/providers/SeoOverrides";
 import { getRootCategories, bareId } from "@/lib/api";
 import { categoryVisual } from "@/lib/catalog-visuals";
 
@@ -150,6 +151,7 @@ export default async function RootLayout({
       <body className="flex min-h-full flex-col bg-paper">
         <SplashScreen />
         <SmoothScroll />
+        <SeoOverrides />
         <Navbar productMenu={productMenu} />
         <main className="flex-1">{children}</main>
         <Footer />

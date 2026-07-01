@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo-config";
 import { Target, Eye } from "lucide-react";
 import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
@@ -10,19 +10,7 @@ import { features, stats } from "@/lib/content";
 import { site } from "@/lib/site";
 import { images } from "@/lib/images";
 
-export const metadata: Metadata = {
-  title: "About Us — Commercial Kitchen Equipment Makers in Vizag",
-  description:
-    "Established in 1998, Veecos Canteen Equipments is a leading manufacturer of commercial kitchen equipment in Visakhapatnam (Vizag), serving Andhra Pradesh & Telangana. Learn about our mission, vision, quality and 25+ years of experience.",
-  keywords: [
-    "about Veecos",
-    "commercial kitchen equipment manufacturer Visakhapatnam",
-    "canteen equipment makers Vizag",
-    "NSIC certified kitchen equipment",
-    "ISO 9001 kitchen equipment manufacturer",
-  ],
-  alternates: { canonical: "/about" },
-};
+export const metadata = pageMetadata("about");
 
 const aboutImg = images.chefLadle;
 
