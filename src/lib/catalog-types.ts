@@ -44,6 +44,45 @@ export interface CatalogNode {
   subcategories: Category[];
 }
 
+/**
+ * Lightweight product shape for listing grids. Products carry large HTML
+ * descriptions; shipping those to the browser for every card makes listing
+ * pages heavy. This projection keeps only what cards + search need.
+ */
+export interface ProductSummary {
+  PK: string;
+  Name: string;
+  Slug: string;
+  CategoryId?: string;
+  Images?: string[];
+  Specs?: Record<string, string>;
+  IsAvailable?: boolean;
+  IsCustomizable?: boolean;
+  /** Plain-text blob (name + description text + specs) for client-side search. */
+  SearchText?: string;
+}
+
+/** Project a full product down to the listing summary (strips HTML). */
+export function toProductSummary(p: Product): ProductSummary {
+  const specEntries = p.Specs ? Object.entries(p.Specs).slice(0, 2) : [];
+  const descText = (p.Description ?? "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 300);
+  return {
+    PK: p.PK,
+    Name: p.Name,
+    Slug: p.Slug,
+    CategoryId: p.CategoryId,
+    Images: p.Images?.length ? [p.Images[0]] : undefined,
+    Specs: specEntries.length ? Object.fromEntries(specEntries) : undefined,
+    IsAvailable: p.IsAvailable,
+    IsCustomizable: p.IsCustomizable,
+    SearchText: [p.Name, descText, ...specEntries.flat()].join(" ").toLowerCase(),
+  };
+}
+
 export interface LeadPayload {
   LeadType: "GENERAL" | "PRODUCT_SPECIFIC";
   ProductId?: string;

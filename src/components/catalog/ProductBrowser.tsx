@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Search,
   X,
@@ -13,7 +13,7 @@ import {
   Grid3x3,
 } from "lucide-react";
 import { ProductCard } from "./ProductCard";
-import { bareId, type Product, type CatalogNode } from "@/lib/catalog-types";
+import { bareId, type ProductSummary, type CatalogNode } from "@/lib/catalog-types";
 import { cn } from "@/lib/cn";
 
 type Sort = "default" | "az" | "za" | "available";
@@ -24,7 +24,7 @@ export function ProductBrowser({
   tree,
   initialCat = null,
 }: {
-  products: Product[];
+  products: ProductSummary[];
   tree: CatalogNode[];
   initialCat?: string | null;
 }) {
@@ -35,6 +35,22 @@ export function ProductBrowser({
   const [cols, setCols] = useState<3 | 4>(4);
   const [avail, setAvail] = useState<"all" | "in" | "out">("all");
   const [open, setOpen] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  /** Change page and bring the results back into view (works with Lenis). */
+  const goToPage = (n: number) => {
+    setPage(n);
+    const el = resultsRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 96;
+    const lenis = (
+      window as unknown as {
+        lenis?: { scrollTo(v: number, o?: { duration?: number }): void };
+      }
+    ).lenis;
+    if (lenis) lenis.scrollTo(top, { duration: 0.7 });
+    else window.scrollTo({ top, behavior: "smooth" });
+  };
 
   // id → name + main → sub ids
   const { catName, subIdsByMain } = useMemo(() => {
@@ -94,14 +110,9 @@ export function ProductBrowser({
     let list = scoped.filter((p) => {
       if (terms.length) {
         const hay = [
-          p.Name,
-          p.Description ?? "",
-          p.CategoryId ? catName.get(p.CategoryId) ?? "" : "",
-          p.Specs ? Object.keys(p.Specs).join(" ") : "",
-          p.Specs ? Object.values(p.Specs).join(" ") : "",
-        ]
-          .join(" ")
-          .toLowerCase();
+          p.SearchText ?? p.Name.toLowerCase(),
+          p.CategoryId ? (catName.get(p.CategoryId) ?? "").toLowerCase() : "",
+        ].join(" ");
         if (!terms.every((t) => hay.includes(t))) return false;
       }
       if (avail === "in" && p.IsAvailable === false) return false;
@@ -264,7 +275,7 @@ export function ProductBrowser({
       </aside>
 
       {/* Main */}
-      <div>
+      <div ref={resultsRef}>
         {/* Results bar */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-4">
           <p className="text-sm text-ink/55">
@@ -356,7 +367,7 @@ export function ProductBrowser({
               <div className="mt-10 flex items-center justify-center gap-1.5">
                 <PageBtn
                   disabled={current === 1}
-                  onClick={() => setPage(current - 1)}
+                  onClick={() => goToPage(current - 1)}
                   label="Previous page"
                 >
                   <ChevronLeft className="size-4" />
@@ -372,7 +383,8 @@ export function ProductBrowser({
                       )}
                       <button
                         type="button"
-                        onClick={() => setPage(n)}
+                        onClick={() => goToPage(n)}
+                        aria-current={n === current ? "page" : undefined}
                         className={cn(
                           "grid size-10 place-items-center rounded-full text-sm font-medium tabular-nums transition-colors",
                           n === current
@@ -386,7 +398,7 @@ export function ProductBrowser({
                   ))}
                 <PageBtn
                   disabled={current === pageCount}
-                  onClick={() => setPage(current + 1)}
+                  onClick={() => goToPage(current + 1)}
                   label="Next page"
                 >
                   <ChevronRight className="size-4" />
@@ -431,7 +443,7 @@ function ViewBtn({
       aria-label={label}
       aria-pressed={active}
       className={cn(
-        "grid size-9 place-items-center rounded-lg transition-colors",
+        "grid size-9 place-items-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/40",
         active ? "bg-ink text-paper" : "text-ink/45 hover:bg-ink/5 hover:text-ink",
       )}
     >
@@ -457,7 +469,7 @@ function PageBtn({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="grid size-10 place-items-center rounded-full border border-ink/15 text-ink transition-colors hover:bg-ink/5 disabled:cursor-not-allowed disabled:opacity-40"
+      className="grid size-10 place-items-center rounded-full border border-ink/15 text-ink transition-colors hover:bg-ink/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/40 disabled:cursor-not-allowed disabled:opacity-40"
     >
       {children}
     </button>

@@ -143,6 +143,12 @@ export default async function RootLayout({
           add an @font-face for "Saans" to load it; otherwise it falls back to
           Arial (the same clean grotesque used as the reference fallback).
         */}
+        {/* Catalog images live on S3 — warm the connection early. */}
+        <link
+          rel="preconnect"
+          href="https://veecos-assets.s3.ap-south-1.amazonaws.com"
+          crossOrigin="anonymous"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}

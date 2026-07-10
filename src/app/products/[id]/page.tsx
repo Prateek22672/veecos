@@ -16,6 +16,7 @@ import {
   prettify,
   bareId,
 } from "@/lib/api";
+import { toProductSummary } from "@/lib/catalog-types";
 import { categoryMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 
 export const revalidate = 60;
@@ -156,9 +157,28 @@ export default async function CategoryPage({ params }: Params) {
                   );
                 })}
               </div>
+
+              {/* Products can also live directly under a main category — show
+                  the full browsable list (direct + range products) below. */}
+              {catProducts.length > 0 && (
+                <div className="mt-14 border-t border-ink/10 pt-12 sm:mt-16">
+                  <div className="mb-8">
+                    <Eyebrow>All products in {name}</Eyebrow>
+                  </div>
+                  <ProductBrowser
+                    products={allProducts.map(toProductSummary)}
+                    tree={tree}
+                    initialCat={id}
+                  />
+                </div>
+              )}
             </>
           ) : (
-            <ProductBrowser products={allProducts} tree={tree} initialCat={id} />
+            <ProductBrowser
+              products={allProducts.map(toProductSummary)}
+              tree={tree}
+              initialCat={id}
+            />
           )}
         </Container>
       </section>

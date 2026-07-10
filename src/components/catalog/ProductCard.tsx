@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Settings2 } from "lucide-react";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { bareId, type Product } from "@/lib/catalog-types";
+import { bareId, type ProductSummary } from "@/lib/catalog-types";
 import { categoryVisual } from "@/lib/catalog-visuals";
 import { productAlt } from "@/lib/seo";
 
@@ -10,7 +10,7 @@ export function ProductCard({
   priority = false,
   eyebrow,
 }: {
-  product: Product;
+  product: ProductSummary;
   priority?: boolean;
   eyebrow?: string;
 }) {

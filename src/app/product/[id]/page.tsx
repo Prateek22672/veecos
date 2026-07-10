@@ -11,6 +11,7 @@ import { RichText } from "@/components/ui/RichText";
 import { Certifications } from "@/components/sections/Certifications";
 import { EnquiryDialog } from "@/components/contact/EnquiryDialog";
 import { getProduct, getAllProducts, resolveCategory, bareId } from "@/lib/api";
+import { toProductSummary } from "@/lib/catalog-types";
 import { site } from "@/lib/site";
 import {
   productMetadata,
@@ -42,13 +43,14 @@ export default async function ProductPage({ params }: Params) {
   const category = categoryId ? await resolveCategory(categoryId) : null;
   const categoryName = category?.Name;
 
-  // Related products from the same category.
+  // Related products from the same category (lightweight card projection).
   const catKey = product.CategoryId ?? categoryId ?? undefined;
   const allProducts = await getAllProducts();
   const related = catKey
     ? allProducts
         .filter((p) => p.CategoryId === catKey && bareId(p.PK) !== id)
         .slice(0, 8)
+        .map(toProductSummary)
     : [];
 
   const productJsonLd = {

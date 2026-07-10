@@ -122,10 +122,39 @@ export const getCategoryProducts = cache(
   },
 );
 
-/** All globally-active products — the live catalogue. */
+/**
+ * All globally-active products — the live catalogue.
+ * The backend paginates (10/page, `lastKey` cursor), so we follow the cursor
+ * until exhausted. This runs server-side once per cache window (not per user),
+ * so even large catalogues cost a handful of upstream calls per minute.
+ */
 export const getAllProducts = cache(async (): Promise<Product[]> => {
-  const json = await getJson<{ products: Product[] }>("/products");
-  return json?.data?.products ?? [];
+  const all: Product[] = [];
+  const seen = new Set<string>();
+  let cursor: string | undefined;
+
+  // Safety cap: 60 pages ≈ 600 products. Raise if the catalogue outgrows it.
+  for (let i = 0; i < 60; i++) {
+    const path = cursor
+      ? `/products?lastKey=${encodeURIComponent(cursor)}`
+      : "/products";
+    const json = await getJson<{
+      products: Product[];
+      hasMore?: boolean;
+      lastKey?: unknown;
+    }>(path);
+    const batch = json?.data?.products ?? [];
+    for (const p of batch) {
+      if (!seen.has(p.PK)) {
+        seen.add(p.PK);
+        all.push(p);
+      }
+    }
+    const lk = json?.data?.lastKey;
+    if (!json?.data?.hasMore || lk == null || batch.length === 0) break;
+    cursor = typeof lk === "string" ? lk : JSON.stringify(lk);
+  }
+  return all;
 });
 
 /** Full detail for a single product id. */
