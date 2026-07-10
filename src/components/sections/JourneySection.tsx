@@ -39,7 +39,7 @@ const STEPS: Step[] = [
     title: "We start by listening",
     text: "Your space, your menu, your volume and your budget. Every Veecos kitchen begins with understanding exactly how you cook.",
     icon: MessageSquare,
-    image: "/journey/consult-veecos.png",
+    image: "/journey/consult-veecos.webp",
   },
   {
     n: "02",
@@ -47,7 +47,7 @@ const STEPS: Step[] = [
     title: "We plan every inch",
     text: "Engineers turn your brief into a 3D layout built around real workflow — hygiene zoning, easy access and smart use of every footprint.",
     icon: PencilRuler,
-    image: "/journey/design-veecos.png",
+    image: "/journey/design-veecos.webp",
   },
   {
     n: "03",
@@ -55,7 +55,7 @@ const STEPS: Step[] = [
     title: "We build it to last",
     text: "CNC-precision fabrication in food-grade 304/316 stainless — four-sided pressed and pre-assembled in our Visakhapatnam workshop.",
     icon: Factory,
-    image: "/journey/durable-veecos.png",
+    image: "/journey/durable-veecos.webp",
   },
   {
     n: "04",
@@ -63,7 +63,7 @@ const STEPS: Step[] = [
     title: "We fit & commission",
     text: "On-site installation exactly as designed. Every piece is tested and signed off — your kitchen handed over ready to cook.",
     icon: Wrench,
-    image: "/journey/installation-veecos.png",
+    image: "/journey/installation-veecos.webp",
   },
   {
     n: "05",
@@ -71,7 +71,7 @@ const STEPS: Step[] = [
     title: "We stay with you",
     text: "Dependable pan-India after-sales, preventive maintenance and genuine spares — keeping you running for years after handover.",
     icon: LifeBuoy,
-    image: "/journey/support-veecos.png",
+    image: "/journey/support-veecos.webp",
   },
 ];
 

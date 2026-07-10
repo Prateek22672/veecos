@@ -12,7 +12,6 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "./Logo";
 import { EnquiryDialog } from "@/components/contact/EnquiryDialog";
-import { services } from "@/lib/content";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -29,11 +28,13 @@ export type MenuCard = {
 };
 
 // Static services mega-menu (the products one is passed in from the server).
+// Uses the optimized journey renders — consistent framing, so the hover
+// cards stay perfectly aligned.
 const serviceMenu: MenuCard[] = [
-  { label: "Design & Planning", href: "/services", image: services[0]?.image },
-  { label: "Manufacturing", href: "/services", image: services[1]?.image },
-  { label: "Installation", href: "/services", image: services[2]?.image },
-  { label: "After-Sales", href: "/services", image: services[3]?.image },
+  { label: "Design & Planning", href: "/services", image: "/journey/design-veecos.webp" },
+  { label: "Manufacturing", href: "/services", image: "/journey/durable-veecos.webp" },
+  { label: "Installation", href: "/services", image: "/journey/installation-veecos.webp" },
+  { label: "After-Sales", href: "/services", image: "/journey/support-veecos.webp" },
   { label: "Request a quote", href: "/contact", plus: true },
 ];
 

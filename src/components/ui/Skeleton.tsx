@@ -1,49 +1,78 @@
 import { cn } from "@/lib/cn";
 
 export function Skeleton({ className }: { className?: string }) {
+  return <div className={cn("skeleton rounded-xl", className)} />;
+}
+
+/** One product-card placeholder — mirrors ProductCard (square image + text). */
+export function ProductCardSkeleton() {
   return (
-    <div className={cn("animate-pulse rounded-xl bg-ink/6", className)} />
+    <div className="overflow-hidden rounded-xl border border-line bg-white">
+      <Skeleton className="aspect-square w-full rounded-none" />
+      <div className="space-y-2.5 p-4">
+        <Skeleton className="h-4 w-4/5" />
+        <Skeleton className="h-3 w-3/5" />
+        <Skeleton className="mt-4 h-3.5 w-24" />
+      </div>
+    </div>
   );
 }
 
-/** Catalogue page skeleton — mirrors the sidebar + content layout. */
+/** Catalogue category page skeleton — mirrors header + nav bar + browser. */
 export function CatalogSkeleton() {
   return (
     <>
-      <section className="bg-paper pt-28 sm:pt-32">
+      {/* Compact header */}
+      <section className="bg-paper pb-6 pt-28 sm:pb-8 sm:pt-32">
         <div className="mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="mt-5 h-12 w-[min(90%,30rem)]" />
-          <Skeleton className="mt-5 h-4 w-[min(90%,22rem)]" />
+          <Skeleton className="h-3 w-40" />
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <Skeleton className="h-9 w-[min(70%,20rem)] sm:h-11" />
+            <Skeleton className="h-6 w-24 rounded-full" />
+          </div>
+          <Skeleton className="mt-3 h-4 w-[min(90%,26rem)]" />
         </div>
       </section>
-      <section className="bg-paper py-12 sm:py-16">
-        <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[15rem_1fr] lg:gap-14 lg:px-12">
-          {/* sidebar panel */}
-          <div className="hidden rounded-[1.5rem] border border-ink/10 bg-white p-4 lg:block">
-            <Skeleton className="h-3 w-20" />
-            <div className="mt-4 space-y-3 border-t border-ink/10 pt-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-5 w-full" />
-              ))}
+
+      {/* Category nav bar */}
+      <div className="border-y border-ink/10 bg-paper">
+        <div className="mx-auto flex w-full max-w-7xl items-center gap-2.5 overflow-hidden px-5 py-3 sm:px-8 lg:px-12">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Skeleton key={i} className="h-8 w-32 shrink-0 rounded-full" />
+          ))}
+        </div>
+      </div>
+
+      {/* Browser: sidebar + results */}
+      <section className="bg-paper py-10 sm:py-12">
+        <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 sm:px-8 lg:grid-cols-[16rem_1fr] lg:gap-12 lg:px-12">
+          {/* sidebar */}
+          <div className="hidden lg:block">
+            <Skeleton className="h-11 w-full rounded-full" />
+            <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-4">
+              <Skeleton className="h-3 w-24" />
+              <div className="mt-4 space-y-3 border-t border-ink/10 pt-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-5 w-full" />
+                ))}
+              </div>
             </div>
           </div>
-          {/* content */}
+
+          {/* results */}
           <div>
-            <Skeleton className="h-[340px] w-full rounded-[1.75rem] sm:h-[430px]" />
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="overflow-hidden rounded-2xl border border-line bg-white"
-                >
-                  <Skeleton className="aspect-[4/3] w-full rounded-none" />
-                  <div className="space-y-3 p-6">
-                    <Skeleton className="h-5 w-2/3" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-1/3" />
-                  </div>
-                </div>
+            {/* results bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Skeleton className="h-4 w-44" />
+              <div className="flex items-center gap-2.5">
+                <Skeleton className="h-8 w-28 rounded-full" />
+                <Skeleton className="h-9 w-9 rounded-lg" />
+                <Skeleton className="h-9 w-36 rounded-full" />
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
               ))}
             </div>
           </div>

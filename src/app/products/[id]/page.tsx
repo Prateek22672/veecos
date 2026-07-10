@@ -21,6 +21,20 @@ import { categoryMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 
 export const revalidate = 60;
 
+// Pre-render every category page at build time (refreshed by ISR) so
+// navigating into a category is instant — no on-demand fetch on click.
+export async function generateStaticParams() {
+  try {
+    const tree = await getCatalogTree();
+    return tree.flatMap((n) => [
+      { id: bareId(n.category.PK) },
+      ...n.subcategories.map((s) => ({ id: bareId(s.PK) })),
+    ]);
+  } catch {
+    return [];
+  }
+}
+
 type Params = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -102,8 +116,8 @@ export default async function CategoryPage({ params }: Params) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Header */}
-      <section className="bg-paper pb-8 pt-28 sm:pb-10 sm:pt-32">
+      {/* Header — compact, store-style: crumb, title + live count, one line */}
+      <section className="bg-paper pb-6 pt-28 sm:pb-8 sm:pt-32">
         <Container>
           <nav className="flex flex-wrap items-center gap-1.5 text-xs text-ink/45">
             <Link href="/products" className="transition-colors hover:text-ink">
@@ -120,10 +134,17 @@ export default async function CategoryPage({ params }: Params) {
             <ChevronRight className="size-3.5 text-ink/30" />
             <span className="text-ink/70">{name}</span>
           </nav>
-          <h1 className="mt-4 max-w-3xl text-[clamp(2.25rem,5vw,3.5rem)] font-medium leading-[1.02] tracking-tight text-ink">
-            {name}
-          </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-ink/55">
+          <div className="mt-3.5 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <h1 className="text-[clamp(1.75rem,3.6vw,2.5rem)] font-semibold leading-[1.05] tracking-tight text-ink">
+              {name}
+            </h1>
+            <span className="inline-flex items-center rounded-full border border-ink/15 bg-white px-3 py-1 text-xs font-medium text-ink/60">
+              {isMain
+                ? `${subcategories.length} ${subcategories.length === 1 ? "range" : "ranges"}${catProducts.length > 0 ? ` · ${catProducts.length} products` : ""}`
+                : `${catProducts.length} ${catProducts.length === 1 ? "product" : "products"}`}
+            </span>
+          </div>
+          <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-ink/55 sm:text-[15px]">
             {isMain
               ? "Choose a range to see its products — every item is built to your kitchen's size and workflow."
               : "Fully customisable to your kitchen's size and workflow. Request a quote on any product below."}
@@ -133,7 +154,7 @@ export default async function CategoryPage({ params }: Params) {
 
       <CategoryNav tree={tree} activeId={id} />
 
-      <section className="bg-paper py-14 sm:py-20">
+      <section className="bg-paper py-10 sm:py-12">
         <Container>
           {isMain ? (
             <>

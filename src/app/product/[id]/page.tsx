@@ -21,6 +21,17 @@ import {
 
 export const revalidate = 60;
 
+// Pre-render every product page at build time (refreshed by ISR) so opening
+// a product is instant — no on-demand fetch on click.
+export async function generateStaticParams() {
+  try {
+    const products = await getAllProducts();
+    return products.map((p) => ({ id: bareId(p.PK) }));
+  } catch {
+    return [];
+  }
+}
+
 type Params = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
