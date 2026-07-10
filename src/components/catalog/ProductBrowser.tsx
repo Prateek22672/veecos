@@ -135,36 +135,18 @@ export function ProductBrowser({
   const start = (current - 1) * perPage;
   const pageItems = filtered.slice(start, start + perPage);
 
-  const activeExtras = (query.trim() ? 1 : 0) + (avail !== "all" ? 1 : 0);
-
   const clearAll = () => {
     setQuery("");
     setAvail("all");
     setPage(1);
   };
 
+  // The sidebar only exists when it has real content (ranges / availability).
+  // Search lives in the results toolbar, so an empty side card never renders.
+  const hasSidebar = (ranges.length > 0 && !!parentId) || showAvail;
+
   const Sidebar = (
     <div className="space-y-6 rounded-3xl border border-ink/10 bg-white p-5 shadow-[0_18px_50px_-32px_rgba(20,20,15,0.35)]">
-      {/* Search */}
-      <div className="flex items-center gap-2.5 rounded-full border border-ink/15 bg-white px-4 py-2.5 focus-within:border-ink/40">
-        <Search className="size-4 shrink-0 text-ink/40" />
-        <input
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setPage(1);
-          }}
-          placeholder="Search products…"
-          className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink/40"
-          aria-label="Search products"
-        />
-        {query && (
-          <button type="button" onClick={() => setQuery("")} aria-label="Clear">
-            <X className="size-4 text-ink/40 hover:text-ink" />
-          </button>
-        )}
-      </div>
-
       {/* Ranges (sibling sub-categories) */}
       {ranges.length > 0 && parentId && (
         <div>
@@ -239,10 +221,13 @@ export function ProductBrowser({
         </div>
       )}
 
-      {activeExtras > 0 && (
+      {avail !== "all" && (
         <button
           type="button"
-          onClick={clearAll}
+          onClick={() => {
+            setAvail("all");
+            setPage(1);
+          }}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-ink/60 transition-colors hover:text-ink"
         >
           <X className="size-3.5" /> Clear
@@ -252,32 +237,38 @@ export function ProductBrowser({
   );
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[16rem_1fr] lg:gap-12">
-      {/* Sidebar */}
-      <aside className="lg:sticky lg:top-24 lg:self-start">
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="mb-3 flex w-full items-center justify-between rounded-full border border-ink/15 bg-white px-5 py-3 text-sm font-medium text-ink lg:hidden"
-        >
-          <span className="flex items-center gap-2">
-            <SlidersHorizontal className="size-4 text-ink/50" />
-            Browse &amp; search
-          </span>
-          <ChevronDown
-            className={cn(
-              "size-4 text-ink/40 transition-transform",
-              open && "rotate-180",
-            )}
-          />
-        </button>
-        <div className={cn(open ? "block" : "hidden lg:block")}>{Sidebar}</div>
-      </aside>
+    <div
+      className={cn(
+        hasSidebar && "grid gap-8 lg:grid-cols-[16rem_1fr] lg:gap-12",
+      )}
+    >
+      {/* Sidebar — only when there are ranges / filters to show */}
+      {hasSidebar && (
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="mb-3 flex w-full items-center justify-between rounded-full border border-ink/15 bg-white px-5 py-3 text-sm font-medium text-ink lg:hidden"
+          >
+            <span className="flex items-center gap-2">
+              <SlidersHorizontal className="size-4 text-ink/50" />
+              Browse ranges
+            </span>
+            <ChevronDown
+              className={cn(
+                "size-4 text-ink/40 transition-transform",
+                open && "rotate-180",
+              )}
+            />
+          </button>
+          <div className={cn(open ? "block" : "hidden lg:block")}>{Sidebar}</div>
+        </aside>
+      )}
 
       {/* Main */}
       <div ref={resultsRef}>
-        {/* Results bar */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-4">
+        {/* Results bar — count left, search + controls top right */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-ink/10 pb-4">
           <p className="text-sm text-ink/55">
             {total === 0 ? (
               "No products"
@@ -292,7 +283,29 @@ export function ProductBrowser({
             )}
           </p>
 
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+            <div className="flex w-full items-center gap-2.5 rounded-full border border-ink/15 bg-white px-4 py-2 transition-colors focus-within:border-ink/40 sm:w-56 xl:w-64">
+              <Search className="size-4 shrink-0 text-ink/40" />
+              <input
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Search products…"
+                className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink/40"
+                aria-label="Search products"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  aria-label="Clear search"
+                >
+                  <X className="size-4 text-ink/40 hover:text-ink" />
+                </button>
+              )}
+            </div>
             <div className="flex items-center gap-1.5 text-sm text-ink/55">
               <span className="font-medium text-ink">Show</span>
               {PAGE_SIZES.map((n, i) => (
@@ -350,7 +363,11 @@ export function ProductBrowser({
             <div
               className={cn(
                 "grid grid-cols-2 gap-4 sm:gap-5",
-                cols === 3 ? "lg:grid-cols-3" : "lg:grid-cols-3 2xl:grid-cols-4",
+                cols === 3
+                  ? "lg:grid-cols-3"
+                  : hasSidebar
+                    ? "lg:grid-cols-3 2xl:grid-cols-4"
+                    : "lg:grid-cols-4",
               )}
             >
               {pageItems.map((p, i) => (

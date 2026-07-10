@@ -70,7 +70,7 @@ export default async function ProductsPage() {
           {/* Search-first: a prominent search bar overlapping the hero */}
           <div className="relative z-20 -mt-9 sm:-mt-12">
             <Container>
-              <div className="mx-auto max-w-2xl rounded-2xl border border-ink/10 bg-white p-3 shadow-[0_26px_60px_-28px_rgba(20,20,15,0.55)] sm:p-3.5">
+              <div className="mx-auto max-w-2xl rounded-full border border-ink/10 bg-white p-3 shadow-[0_26px_60px_-28px_rgba(20,20,15,0.55)] sm:p-3.5">
                 <ProductSearch items={searchItems} />
               </div>
               <ol className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-ink/50">

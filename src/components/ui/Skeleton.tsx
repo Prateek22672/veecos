@@ -48,8 +48,7 @@ export function CatalogSkeleton() {
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 sm:px-8 lg:grid-cols-[16rem_1fr] lg:gap-12 lg:px-12">
           {/* sidebar */}
           <div className="hidden lg:block">
-            <Skeleton className="h-11 w-full rounded-full" />
-            <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-4">
+            <div className="rounded-2xl border border-ink/10 bg-white p-4">
               <Skeleton className="h-3 w-24" />
               <div className="mt-4 space-y-3 border-t border-ink/10 pt-4">
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -61,13 +60,13 @@ export function CatalogSkeleton() {
 
           {/* results */}
           <div>
-            {/* results bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* results bar — count left, search + controls right */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 pb-4">
               <Skeleton className="h-4 w-44" />
-              <div className="flex items-center gap-2.5">
-                <Skeleton className="h-8 w-28 rounded-full" />
-                <Skeleton className="h-9 w-9 rounded-lg" />
-                <Skeleton className="h-9 w-36 rounded-full" />
+              <div className="flex w-full flex-wrap items-center gap-2.5 sm:w-auto">
+                <Skeleton className="h-10 w-full rounded-full sm:w-56" />
+                <Skeleton className="hidden h-8 w-28 rounded-full sm:block" />
+                <Skeleton className="hidden h-9 w-36 rounded-full sm:block" />
               </div>
             </div>
             <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">

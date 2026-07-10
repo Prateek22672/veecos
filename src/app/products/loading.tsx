@@ -11,7 +11,7 @@ export default function Loading() {
       {/* Overlapping search card */}
       <div className="relative z-20 -mt-9 sm:-mt-12">
         <Container>
-          <Skeleton className="mx-auto h-16 max-w-2xl rounded-2xl border border-ink/10 bg-white" />
+          <Skeleton className="mx-auto h-16 max-w-2xl rounded-full border border-ink/10 bg-white" />
         </Container>
       </div>
 
