@@ -1,5 +1,5 @@
 import { pageMetadata } from "@/lib/seo-config";
-import { Target, Eye } from "lucide-react";
+import { Target, Eye, Scissors, Layers, Flame, Cog } from "lucide-react";
 import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
@@ -141,6 +141,68 @@ export default function AboutPage() {
                 text="To provide high-value products and solutions that help customers save time spent on maintenance and energy — making their kitchens more environment-friendly. We plan to walk through this long journey by consistently maintaining the highest quality in everything we manufacture."
               />
             </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      {/* Infrastructure — the in-house machinery behind every product */}
+      <section className="bg-paper-2 py-20 sm:py-28">
+        <Container>
+          <div className="max-w-2xl">
+            <Reveal>
+              <Eyebrow>Our infrastructure</Eyebrow>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <h2 className="mt-5 text-[clamp(2rem,3.8vw,3.25rem)] font-medium leading-[1.02] tracking-[-0.02em] text-ink">
+                Precision manufacturing, in-house
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="mt-5 text-base leading-relaxed text-ink/60">
+                Every Veecos product is cut, shaped and welded on our own
+                shop-floor machinery — tighter tolerances, faster turnaround
+                and consistent quality on every order.
+              </p>
+            </Reveal>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                icon: Scissors,
+                title: "Laser Cutting Machine",
+                text: "Precise, clean-edge stainless steel cutting for consistent panel dimensions.",
+              },
+              {
+                icon: Cog,
+                title: "Bending Machine",
+                text: "Accurate sheet-metal folds for tight, uniform seams on every fabrication.",
+              },
+              {
+                icon: Layers,
+                title: "Hydraulic Bending Machine",
+                text: "High-tonnage forming for heavy-gauge steel used in load-bearing frames.",
+              },
+              {
+                icon: Flame,
+                title: "Laser Welding",
+                text: "Strong, seamless joints with minimal heat distortion for a hygienic finish.",
+              },
+            ].map((m, i) => (
+              <Reveal key={m.title} delay={i * 0.06}>
+                <div className="h-full rounded-[1.75rem] border border-ink/10 bg-white p-7">
+                  <span className="grid size-12 place-items-center rounded-full border border-ink/15 text-ink">
+                    <m.icon className="size-5.5" strokeWidth={1.5} />
+                  </span>
+                  <h3 className="mt-6 text-base font-medium text-ink">
+                    {m.title}
+                  </h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-ink/55">
+                    {m.text}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </Container>
       </section>

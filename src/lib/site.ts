@@ -13,7 +13,7 @@ export const site = {
   geo: { lat: 17.7326, lng: 83.2329 },
   description:
     "Veecos Canteen Equipments — leading manufacturer of commercial kitchen equipment in Visakhapatnam (Vizag) since 1998. Cooking ranges, exhaust hoods, refrigeration, wash-area equipment, installation and complete turn-key kitchen projects across Andhra Pradesh & Telangana.",
-  phones: ["+91 9848196184", "+91 9581396184"],
+  phones: ["+91 9581396184", "+91 9848196184"],
   /** WhatsApp number in international digits only (for wa.me links). */
   whatsapp: "919581396184",
   emails: ["sales@vce.co.in", "info@vce.co.in", "veecos@yahoo.co.in"],

@@ -36,7 +36,7 @@ export function CategoryNav({
   };
 
   return (
-    <div className="border-y border-ink/10 bg-paper">
+    <div id="category-nav" className="border-y border-ink/10 bg-paper">
       <Container>
         <div className="flex items-center gap-2 py-2.5">
           <button

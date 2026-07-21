@@ -13,6 +13,7 @@ import Lenis from "lenis";
 export function SmoothScroll() {
   const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
+  const prevPathname = useRef<string | null>(null);
 
   useEffect(() => {
     if (
@@ -48,13 +49,27 @@ export function SmoothScroll() {
     };
   }, []);
 
-  // Reset to the top on every route change — Lenis otherwise keeps the previous
-  // scroll position, so a new page (e.g. a product) would open mid-scroll.
+  // Reset scroll on every route change — Lenis otherwise keeps the previous
+  // position, so a new page (e.g. a product) would open mid-scroll.
+  // Exception: switching between category/range pages inside /products —
+  // jumping to 0 there means re-scrolling past the hero every time, so we
+  // land on the category bar instead, right above the new results.
   useEffect(() => {
+    const prev = prevPathname.current;
+    prevPathname.current = pathname;
+    const bothInProducts =
+      !!prev && prev.startsWith("/products/") && pathname.startsWith("/products/");
+    const anchor = bothInProducts
+      ? document.getElementById("category-nav")
+      : null;
+    const target = anchor
+      ? anchor.getBoundingClientRect().top + window.scrollY - 88
+      : 0;
+
     if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
+      lenisRef.current.scrollTo(target, { immediate: true });
     } else if (typeof window !== "undefined") {
-      window.scrollTo(0, 0);
+      window.scrollTo(0, target);
     }
   }, [pathname]);
 

@@ -65,8 +65,13 @@ export default async function CategoryPage({ params }: Params) {
   const subFromParent = parentNode?.subcategories.find(
     (s) => bareId(s.PK) === id,
   );
+  const resolvedName =
+    category?.Name ?? node?.category.Name ?? subFromParent?.Name;
+  // If nothing resolved the id, prettify() just hands back the raw hash
+  // (e.g. "97be0b6a") — never show that to a visitor.
+  const looksLikeRawId = (v: string) => /^[0-9a-f]{6,}$/i.test(v);
   const name =
-    category?.Name ?? node?.category.Name ?? subFromParent?.Name ?? prettify(id);
+    resolvedName ?? (looksLikeRawId(id) ? "More products" : prettify(id));
   const parentName = parentNode?.category.Name;
   const parentHref = parentNode
     ? `/products/${bareId(parentNode.category.PK)}`

@@ -30,7 +30,7 @@ export const services: Service[] = [
     description:
       "Our experienced team designs kitchen layouts around how your chefs actually work — easy access, simple maintenance and smart space management so even compact kitchens run efficiently.",
     points: [
-      "3D layout & workflow planning",
+      "2D layout & workflow planning",
       "Space management for tight footprints",
       "Compliance & hygiene-first zoning",
     ],

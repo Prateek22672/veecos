@@ -87,7 +87,7 @@ export function ProductSearch({ items }: { items: SearchItem[] }) {
                       className={cn(
                         "grid size-8 shrink-0 place-items-center rounded-lg",
                         r.kind === "category"
-                          ? "bg-ink/6 text-ink"
+                          ? "bg-amber-50 text-amber-700"
                           : "bg-ink text-paper",
                       )}
                     >
@@ -101,7 +101,12 @@ export function ProductSearch({ items }: { items: SearchItem[] }) {
                       <span className="block truncate text-sm font-medium text-ink">
                         {r.name}
                       </span>
-                      <span className="block truncate text-[11px] uppercase tracking-[0.12em] text-ink/40">
+                      <span
+                        className={cn(
+                          "block truncate text-[11px] font-semibold uppercase tracking-[0.12em]",
+                          r.kind === "category" ? "text-amber-700/70" : "text-ink/40",
+                        )}
+                      >
                         {r.kind === "category"
                           ? r.context
                             ? `Sub-category · ${r.context}`

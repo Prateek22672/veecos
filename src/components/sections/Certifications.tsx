@@ -1,12 +1,14 @@
 import Image from "next/image";
 import { Reveal } from "@/components/ui/Reveal";
 import { Eyebrow } from "@/components/ui/SectionHeading";
+import { images } from "@/lib/images";
 import { cn } from "@/lib/cn";
 
 /**
- * Shared certifications panel (CE, ISO 9001, ISO 14001, OHSAS 18001).
- * `tone` matches the section to its surroundings (cream on the catalogue,
- * white on product pages) so there's no jarring colour band.
+ * Shared certifications panel. Uses the real badge artwork (NSIC + ISO
+ * 9001:2015) rather than a composite image, so only certifications Veecos
+ * actually holds are ever shown. `tone` matches the section to its
+ * surroundings (cream on the catalogue, white on product pages).
  */
 export function Certifications({ tone = "paper" }: { tone?: "paper" | "white" }) {
   return (
@@ -23,26 +25,31 @@ export function Certifications({ tone = "paper" }: { tone?: "paper" | "white" })
               <div className="max-w-md">
                 <Eyebrow>Quality &amp; compliance</Eyebrow>
                 <h2 className="mt-3 text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-                  Certified to international standards
+                  Certified to recognised standards
                 </h2>
                 <p className="mt-3.5 text-[15px] leading-relaxed text-ink/60">
-                  Every Veecos product is built to recognised quality, safety
-                  and environmental standards — CE, ISO 9001, ISO 14001 and
-                  OHSAS 18001 — so you can specify our equipment with full
-                  confidence.
+                  Veecos Canteen Equipments is NSIC registered and ISO
+                  9001:2015 certified, so you can specify our commercial
+                  kitchen equipment with full confidence.
                 </p>
               </div>
             </Reveal>
 
             <Reveal delay={0.1}>
-              <div className="mx-auto w-full max-w-60 overflow-hidden rounded-xl border border-line">
+              <div className="mx-auto flex w-full max-w-60 items-center justify-center gap-6">
                 <Image
-                  src="/certification-veecos.png"
-                  alt="Veecos certifications — CE, ISO 9001, ISO 14001 and OHSAS 18001 certified commercial kitchen equipment manufacturer in Visakhapatnam (Vizag)"
-                  width={768}
-                  height={980}
-                  sizes="240px"
-                  className="h-auto w-full"
+                  src={images.nsic}
+                  alt="NSIC registered — Veecos Canteen Equipments"
+                  width={112}
+                  height={112}
+                  className="h-auto w-24 object-contain sm:w-28"
+                />
+                <Image
+                  src={images.iso}
+                  alt="ISO 9001:2015 certified — Veecos Canteen Equipments"
+                  width={112}
+                  height={112}
+                  className="h-auto w-24 object-contain sm:w-28"
                 />
               </div>
             </Reveal>
