@@ -76,7 +76,7 @@ export const services: Service[] = [
       "Preventive maintenance",
       "Genuine spares & quick response",
     ],
-    image: images.chefsCooking,
+    image: images.servicesAfterSales,
   },
 ];
 

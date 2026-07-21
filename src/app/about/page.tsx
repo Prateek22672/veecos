@@ -12,7 +12,7 @@ import { images } from "@/lib/images";
 
 export const metadata = pageMetadata("about");
 
-const aboutImg = images.chefLadle;
+const aboutImg = images.aboutWhoWeAre;
 
 export default function AboutPage() {
   return (

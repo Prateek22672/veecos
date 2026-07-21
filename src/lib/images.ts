@@ -24,4 +24,20 @@ export const images = {
   restaurantPass: "/hero-kitchen.jpeg", // restaurant pass with copper lamps (wide, OG)
   kitchenExhaust: "/kitchen-exhaust.webp", // stainless exhaust / ducting (portrait)
   kitchenReference: "/kitchen-reference.webp", // busy professional kitchen (portrait)
+
+  // Journey / services photography (real Veecos team + workshop shots)
+  journeyConsult: "/journey/consult-veecos.webp", // client consultation meeting
+  journeyDesign: "/journey/design-veecos.webp", // engineer planning a 3D kitchen layout
+  journeyDurable: "/journey/durable-veecos.webp", // CNC/laser fabrication
+  journeyInstallation: "/journey/installation-veecos.webp", // on-site installation team
+  journeySupport: "/journey/support-veecos.webp", // after-sales servicing
+
+  // Distinct service-card photography (separate from the journey strip above)
+  servicesDesignPlanning: "/services/design-planning.webp",
+  servicesManufacturing: "/services/manufacturing.webp",
+  servicesInstallation: "/services/installation.webp",
+  servicesAfterSales: "/services/after-sales.webp",
+
+  turnkeyKitchen: "/turnkey-kitchen.webp", // completed turn-key kitchen installation
+  aboutWhoWeAre: "/about-who-we-are.webp", // team + workshop — About "who we are" section
 } as const;

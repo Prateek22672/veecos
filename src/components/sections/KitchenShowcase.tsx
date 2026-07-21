@@ -67,7 +67,7 @@ export function KitchenShowcase() {
         <Reveal delay={0.1}>
           <div className="relative mt-14 aspect-[16/10] w-full overflow-hidden rounded-[1.5rem] sm:aspect-[25/9] sm:rounded-[2rem]">
             <Image
-              src={images.restaurantPass}
+              src={images.turnkeyKitchen}
               alt="A complete commercial kitchen delivered by Veecos"
               fill
               sizes="100vw"
