@@ -143,7 +143,7 @@ export default async function ProductPage({ params }: Params) {
 
       <section className="bg-white pb-12 pt-6 sm:pb-16">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14">
             {/* Gallery */}
             <Reveal>
               <ProductGallery
@@ -152,8 +152,10 @@ export default async function ProductPage({ params }: Params) {
               />
             </Reveal>
 
-            {/* Info */}
-            <div>
+            {/* Info — min-w-0 stops a wide embedded rich-text table from
+                blowing out this grid track (and the whole page) on mobile;
+                the table scrolls inside its own .rich-table box instead. */}
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 {available ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
