@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { bareId, type CatalogNode } from "@/lib/catalog-types";
 import { Container } from "@/components/ui/Container";
@@ -20,14 +20,25 @@ export function CategoryNav({
   activeId?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-
-  if (tree.length === 0) return null;
+  const activeRef = useRef<HTMLAnchorElement>(null);
 
   const activeMain = tree.find(
     (n) =>
       bareId(n.category.PK) === activeId ||
       n.subcategories.some((s) => bareId(s.PK) === activeId),
   );
+
+  // On landing (or navigating between categories), bring the active pill
+  // into view so a visitor never has to hunt for where they are in the row.
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [activeId]);
+
+  if (tree.length === 0) return null;
 
   const scroll = (dir: number) => {
     const el = ref.current;
@@ -59,6 +70,7 @@ export function CategoryNav({
               return (
                 <Link
                   key={rid}
+                  ref={isActive ? activeRef : undefined}
                   href={`/products/${rid}`}
                   className={cn(
                     "shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors",

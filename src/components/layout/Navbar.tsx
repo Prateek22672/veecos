@@ -276,7 +276,7 @@ export function Navbar({ productMenu }: { productMenu?: MenuCard[] }) {
                                 transition={{ duration: 0.35, ease: EASE }}
                                 className="overflow-hidden"
                               >
-                                <div className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                <div className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-5 scroll-pl-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                                   {cards.map((card) => (
                                     <Link
                                       key={card.label}

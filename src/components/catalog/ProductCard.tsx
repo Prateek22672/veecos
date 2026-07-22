@@ -25,7 +25,7 @@ export function ProductCard({
       href={`/product/${id}`}
       className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-white transition-all duration-300 hover:border-ink/25 hover:shadow-[0_22px_50px_-32px_rgba(20,20,15,0.5)]"
     >
-      <div className="relative aspect-square overflow-hidden bg-paper-2 p-3">
+      <div className="relative aspect-square overflow-hidden border-b border-line bg-white p-3">
         <div className="relative h-full w-full">
           <SmartImage
             src={img}

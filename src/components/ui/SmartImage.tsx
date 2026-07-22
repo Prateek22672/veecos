@@ -7,16 +7,24 @@ import { ChefHat } from "lucide-react";
 
 /**
  * next/image wrapper that falls back to a branded placeholder when the
- * source 404s (some catalog images live on S3 and may not be uploaded yet).
+ * source 404s (some catalog images live on S3 and may not be uploaded yet),
+ * and shows a shimmer skeleton behind the image until it finishes loading —
+ * so a slow S3 fetch reads as "loading", never as a blank/broken tile.
  */
 export function SmartImage({
   src,
   alt,
   className,
   fallbackLabel,
+  priority,
   ...rest
 }: ImageProps & { fallbackLabel?: string }) {
   const [failed, setFailed] = useState(!src);
+  const [loaded, setLoaded] = useState(false);
+  // Only `fill` images (always inside a `relative` wrapper) get the absolute
+  // skeleton overlay — small fixed-size icons (badges, logos) skip it so we
+  // never render an absolutely-positioned div without a positioned parent.
+  const isFill = "fill" in rest && rest.fill;
 
   if (failed) {
     return (
@@ -38,12 +46,27 @@ export function SmartImage({
   }
 
   return (
-    <Image
-      src={src}
-      alt={alt}
-      className={className}
-      onError={() => setFailed(true)}
-      {...rest}
-    />
+    <>
+      {isFill && !loaded && (
+        <div
+          aria-hidden
+          className={cn("skeleton absolute inset-0", className)}
+        />
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        priority={priority}
+        loading={priority ? undefined : "lazy"}
+        className={cn(
+          className,
+          "transition-opacity duration-500",
+          loaded ? "opacity-100" : "opacity-0",
+        )}
+        onLoad={() => setLoaded(true)}
+        onError={() => setFailed(true)}
+        {...rest}
+      />
+    </>
   );
 }
