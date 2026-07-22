@@ -3,7 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { categoryVisual } from "@/lib/catalog-visuals";
 import { categoryAlt } from "@/lib/seo";
-import { bareId, type Category } from "@/lib/catalog-types";
+import { bareId, categoryCover, type Category } from "@/lib/catalog-types";
 import { cn } from "@/lib/cn";
 
 export function CategoryCard({
@@ -25,7 +25,7 @@ export function CategoryCard({
   const id = bareId(category.PK);
   const href = parentId ? `/products/${id}?p=${parentId}` : `/products/${id}`;
   const { image, blurb } = categoryVisual(category.Name, category.Slug);
-  const cover = category.ImageUrl || image;
+  const cover = categoryCover(category) || image;
 
   return (
     <Link

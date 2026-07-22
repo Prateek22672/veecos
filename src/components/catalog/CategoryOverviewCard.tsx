@@ -3,7 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { categoryVisual } from "@/lib/catalog-visuals";
 import { categoryAlt } from "@/lib/seo";
-import { bareId, type Category } from "@/lib/catalog-types";
+import { bareId, categoryCover, type Category } from "@/lib/catalog-types";
 
 /**
  * Landing category card that previews its ranges (sub-categories) as chips
@@ -23,7 +23,7 @@ export function CategoryOverviewCard({
 }) {
   const id = bareId(category.PK);
   const { image, blurb } = categoryVisual(category.Name, category.Slug);
-  const cover = category.ImageUrl || image;
+  const cover = categoryCover(category) || image;
 
   return (
     <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-all duration-300 hover:border-ink/20 hover:shadow-card">

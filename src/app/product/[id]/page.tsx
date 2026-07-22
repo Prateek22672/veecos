@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Settings2, CheckCircle2, XCircle, Phone, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { PageBackground } from "@/components/providers/PageBackground";
 import { Reveal } from "@/components/ui/Reveal";
 import { Eyebrow } from "@/components/ui/SectionHeading";
 import { ProductGallery } from "@/components/catalog/ProductGallery";
@@ -108,6 +109,7 @@ export default async function ProductPage({ params }: Params) {
           __html: JSON.stringify([productJsonLd, breadcrumb]),
         }}
       />
+      <PageBackground color="#ffffff" />
 
       {/* Breadcrumb */}
       <div className="bg-white pt-28 sm:pt-32">

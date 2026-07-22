@@ -8,6 +8,7 @@ import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { SplashScreen } from "@/components/providers/SplashScreen";
 import { SeoOverrides } from "@/components/providers/SeoOverrides";
 import { getRootCategories, bareId } from "@/lib/api";
+import { categoryCover } from "@/lib/catalog-types";
 import { categoryVisual } from "@/lib/catalog-visuals";
 
 export const metadata: Metadata = {
@@ -128,7 +129,7 @@ export default async function RootLayout({
   const productMenu: MenuCard[] = roots.slice(0, 5).map((c) => ({
     label: c.Name,
     href: `/products/${bareId(c.PK)}`,
-    image: c.ImageUrl || categoryVisual(c.Name, c.Slug).image,
+    image: categoryCover(c) || categoryVisual(c.Name, c.Slug).image,
   }));
   if (productMenu.length > 0) {
     productMenu.push({ label: "All products", href: "/products", plus: true });

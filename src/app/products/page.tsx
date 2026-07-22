@@ -4,6 +4,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Eyebrow } from "@/components/ui/SectionHeading";
 import { CategoryOverviewCard } from "@/components/catalog/CategoryOverviewCard";
 import { CategoryNav } from "@/components/catalog/CategoryNav";
+import { RefreshCatalogButton } from "@/components/catalog/RefreshCatalogButton";
 import { ProductSearch } from "@/components/catalog/ProductSearch";
 import { PageHero } from "@/components/sections/PageHero";
 import { Certifications } from "@/components/sections/Certifications";
@@ -95,11 +96,14 @@ export default async function ProductsPage() {
           {/* Categories */}
           <section className="bg-paper py-12 sm:py-16">
             <Container>
-              <div className="mb-8 flex items-end justify-between gap-4">
+              <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
                 <Eyebrow>Browse by category</Eyebrow>
-                <p className="hidden text-sm text-ink/45 sm:block">
-                  {tree.length} {tree.length === 1 ? "category" : "categories"}
-                </p>
+                <div className="flex items-center gap-3">
+                  <p className="hidden text-sm text-ink/45 sm:block">
+                    {tree.length} {tree.length === 1 ? "category" : "categories"}
+                  </p>
+                  <RefreshCatalogButton />
+                </div>
               </div>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {tree.map(({ category, subcategories }, i) => {

@@ -16,7 +16,7 @@ import {
   prettify,
   bareId,
 } from "@/lib/api";
-import { toProductSummary } from "@/lib/catalog-types";
+import { toProductSummary, categoryCover } from "@/lib/catalog-types";
 import { categoryMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 
 export const revalidate = 60;
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const cat = await resolveCategory(id);
   const name = cat?.Name ?? prettify(id);
-  return categoryMetadata(name, id, cat?.ImageUrl);
+  return categoryMetadata(name, id, cat ? categoryCover(cat) : undefined);
 }
 
 export default async function CategoryPage({ params }: Params) {

@@ -18,7 +18,9 @@ export interface Category {
   Slug: string;
   Type: "Category";
   ParentId?: string;
-  ImageUrl?: string;
+  /** Admin panel sends the cover photo as `CoverImage`; `ImageUrl` is legacy/unused but kept as a fallback. */
+  CoverImage?: string | null;
+  ImageUrl?: string | null;
   GSI1PK?: string;
   GSI1SK?: string;
 }
@@ -98,6 +100,11 @@ export interface LeadPayload {
 /** Strip the `ENTITY#` prefix from a PK/SK to get the bare id used in URLs. */
 export function bareId(pkOrSk: string): string {
   return pkOrSk.includes("#") ? pkOrSk.split("#").slice(1).join("#") : pkOrSk;
+}
+
+/** The admin-uploaded cover photo for a category, if one was set. */
+export function categoryCover(category: Category): string | undefined {
+  return category.CoverImage || category.ImageUrl || undefined;
 }
 
 /** Turn a slug/id into a readable label, e.g. "gas-cooking-ranges" → "Gas Cooking Ranges". */

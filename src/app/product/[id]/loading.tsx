@@ -1,8 +1,10 @@
 import { Skeleton } from "@/components/ui/Skeleton";
+import { PageBackground } from "@/components/providers/PageBackground";
 
 export default function Loading() {
   return (
     <>
+      <PageBackground color="#ffffff" />
       <div className="bg-white pt-28 sm:pt-32">
         <div className="mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12">
           <Skeleton className="h-4 w-64" />
