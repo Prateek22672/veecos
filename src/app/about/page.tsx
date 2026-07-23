@@ -189,18 +189,25 @@ export default function AboutPage() {
                 text: "Strong, seamless joints with minimal heat distortion for a hygienic finish.",
               },
             ].map((m, i) => (
-              <Reveal key={m.title} delay={i * 0.06}>
-                <div className="group relative h-full overflow-hidden rounded-[1.75rem] border border-ink/10 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-ink/20 hover:shadow-card">
-                  <span className="pointer-events-none absolute -right-4 -top-3 select-none text-[3.5rem] font-bold leading-none tracking-tighter text-ink/[0.04]">
-                    0{i + 1}
-                  </span>
-                  <span className="relative grid size-13 place-items-center rounded-2xl bg-brand-soft text-ink transition-colors duration-300 group-hover:bg-brand">
-                    <m.icon className="size-6" strokeWidth={1.5} />
-                  </span>
-                  <h3 className="relative mt-6 text-base font-medium text-ink">
+              <Reveal key={m.title} delay={i * 0.06} className="relative h-full">
+                {/* Connects each step to the previous one — reads as one
+                    continuous fabrication line rather than 4 loose cards. */}
+                {i > 0 && (
+                  <span className="pointer-events-none absolute top-[3.9rem] -left-6 hidden h-px w-6 bg-ink/15 lg:block" />
+                )}
+                <div className="group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-ink/10 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-ink/20 hover:shadow-card">
+                  <div className="flex items-center justify-between">
+                    <span className="grid size-13 place-items-center rounded-2xl bg-brand-soft text-ink transition-colors duration-300 group-hover:bg-brand">
+                      <m.icon className="size-6" strokeWidth={1.5} />
+                    </span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/30">
+                      Step 0{i + 1}
+                    </span>
+                  </div>
+                  <h3 className="mt-6 text-base font-medium text-ink">
                     {m.title}
                   </h3>
-                  <p className="relative mt-2.5 text-sm leading-relaxed text-ink/55">
+                  <p className="mt-2.5 text-sm leading-relaxed text-ink/55">
                     {m.text}
                   </p>
                 </div>
