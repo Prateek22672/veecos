@@ -190,14 +190,17 @@ export default function AboutPage() {
               },
             ].map((m, i) => (
               <Reveal key={m.title} delay={i * 0.06}>
-                <div className="h-full rounded-[1.75rem] border border-ink/10 bg-white p-7">
-                  <span className="grid size-12 place-items-center rounded-full border border-ink/15 text-ink">
-                    <m.icon className="size-5.5" strokeWidth={1.5} />
+                <div className="group relative h-full overflow-hidden rounded-[1.75rem] border border-ink/10 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-ink/20 hover:shadow-card">
+                  <span className="pointer-events-none absolute -right-4 -top-3 select-none text-[3.5rem] font-bold leading-none tracking-tighter text-ink/[0.04]">
+                    0{i + 1}
                   </span>
-                  <h3 className="mt-6 text-base font-medium text-ink">
+                  <span className="relative grid size-13 place-items-center rounded-2xl bg-brand-soft text-ink transition-colors duration-300 group-hover:bg-brand">
+                    <m.icon className="size-6" strokeWidth={1.5} />
+                  </span>
+                  <h3 className="relative mt-6 text-base font-medium text-ink">
                     {m.title}
                   </h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-ink/55">
+                  <p className="relative mt-2.5 text-sm leading-relaxed text-ink/55">
                     {m.text}
                   </p>
                 </div>
