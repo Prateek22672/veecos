@@ -32,56 +32,75 @@ const REQUEST_TIMEOUT_MS = 8000;
 const MAX_ATTEMPTS = 2;
 
 /**
- * Cache tag applied to every catalogue read. The admin panel can purge the
- * whole catalogue instantly by calling POST /api/revalidate (revalidateTag).
+ * Kept only so the existing /api/revalidate + /api/refresh-catalog routes still
+ * compile. Catalogue reads are NO LONGER cached (see getJson below), so purging
+ * is a no-op — every page render reads live data straight from the backend.
  */
 export const CATALOG_TAG = "catalog";
 
-/**
- * Default server cache lifetime for catalogue data (seconds). Pages serve from
- * the Data Cache for speed and refresh in the background after this window;
- * on-demand revalidation (the admin webhook) makes changes appear instantly.
- */
-const CATALOG_REVALIDATE = 60;
+/* ------------------------------------------------------------------ */
+/*  ENDPOINT MAP — every backend URL this site calls, in one place.     */
+/*  If catalogue data ever goes missing again, check these first:       */
+/*                                                                      */
+/*   GET /categories                       → root categories ONLY       */
+/*                                           (ParentId === "ROOT")      */
+/*   GET /categories/{id}/subcategories    → child categories AND       */
+/*                                           direct products, mixed     */
+/*   GET /categories/{id}/products         → products under a category  */
+/*   GET /products                         → all products, PAGINATED    */
+/*                                           10/page via ?lastKey=      */
+/*   GET /products/{id}                    → one product (full detail)  */
+/*   GET /testimonials                     → admin-managed testimonials */
+/*   POST /leads                           → enquiry submission         */
+/*                                                                      */
+/*  Set VEECOS_API_DEBUG=1 to log every call (method, URL, status, ms). */
+/* ------------------------------------------------------------------ */
 
-type FetchOpts = {
-  /** Override the cache lifetime (seconds) for this read. */
-  revalidate?: number;
-};
+const API_DEBUG = process.env.VEECOS_API_DEBUG === "1";
 
 /**
  * Resilient JSON GET: per-attempt timeout + one retry on network/timeout error,
  * graceful null on failure (never throws → a flaky API can't crash a page).
- * Responses are cached in Next's Data Cache and tagged so they can be purged
- * on demand — fast pages without re-hitting the backend on every request.
+ *
+ * CACHING IS DISABLED (`cache: "no-store"`). Every render fetches live data so
+ * anything the admin panel adds or edits shows up immediately, with no stale
+ * window. React `cache()` on the exported readers still de-dupes identical
+ * calls *within a single request* — that is request-scoped memoisation, not a
+ * cross-request cache, so it never serves stale data.
  */
-async function getJson<T>(
-  path: string,
-  opts: FetchOpts = {},
-): Promise<ApiEnvelope<T> | null> {
-  const cacheOpt = {
-    next: {
-      revalidate: opts.revalidate ?? CATALOG_REVALIDATE,
-      tags: [CATALOG_TAG] as string[],
-    },
-  };
+async function getJson<T>(path: string): Promise<ApiEnvelope<T> | null> {
+  const url = `${API_BASE}${path}`;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const started = Date.now();
     try {
-      const res = await fetch(`${API_BASE}${path}`, {
-        ...cacheOpt,
+      const res = await fetch(url, {
+        cache: "no-store",
         headers: { Accept: "application/json" },
         signal: controller.signal,
       });
       clearTimeout(timer);
-      if (!res.ok) return null;
+      if (API_DEBUG) {
+        console.log(
+          `[veecos-api] GET ${url} → ${res.status} (${Date.now() - started}ms)`,
+        );
+      }
+      if (!res.ok) {
+        console.warn(`[veecos-api] GET ${url} failed with ${res.status}`);
+        return null;
+      }
       return (await res.json()) as ApiEnvelope<T>;
-    } catch {
+    } catch (err) {
       clearTimeout(timer);
-      // Last attempt failed → degrade gracefully.
-      if (attempt === MAX_ATTEMPTS) return null;
+      if (attempt === MAX_ATTEMPTS) {
+        console.warn(
+          `[veecos-api] GET ${url} errored after ${MAX_ATTEMPTS} attempts:`,
+          err instanceof Error ? err.message : err,
+        );
+        return null;
+      }
     }
   }
   return null;
@@ -175,6 +194,48 @@ export const getCatalogTree = cache(async (): Promise<CatalogNode[]> => {
     category,
     subcategories: subs[i] ?? [],
   }));
+});
+
+/**
+ * Catalogue health check.
+ *
+ * A product is only browsable if its `CategoryId` matches a category the
+ * backend actually returns — i.e. a root from GET /categories, or a child from
+ * GET /categories/{root}/subcategories. If the admin panel writes a product
+ * against a category that neither endpoint lists (e.g. the category row's
+ * GSI1PK / ParentId link is missing), that product becomes unreachable by
+ * browsing. This surfaces exactly that, so the gap is visible instead of silent.
+ */
+export const getCatalogHealth = cache(async () => {
+  const [tree, products] = await Promise.all([
+    getCatalogTree(),
+    getAllProducts(),
+  ]);
+
+  const known = new Set<string>();
+  tree.forEach((n) => {
+    known.add(bareId(n.category.PK));
+    n.subcategories.forEach((s) => known.add(bareId(s.PK)));
+  });
+
+  const unreachable = new Map<string, number>();
+  for (const p of products) {
+    const cid = p.CategoryId;
+    if (!cid || !known.has(cid)) {
+      const key = cid ?? "(no CategoryId)";
+      unreachable.set(key, (unreachable.get(key) ?? 0) + 1);
+    }
+  }
+
+  const hiddenCount = [...unreachable.values()].reduce((a, b) => a + b, 0);
+  return {
+    apiBase: API_BASE,
+    categoriesVisible: known.size,
+    productsTotal: products.length,
+    productsBrowsable: products.length - hiddenCount,
+    productsUnreachableByCategory: hiddenCount,
+    unreachableCategoryIds: Object.fromEntries(unreachable),
+  };
 });
 
 /**

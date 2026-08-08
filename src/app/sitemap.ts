@@ -2,7 +2,9 @@ import type { MetadataRoute } from "next";
 import { site } from "@/lib/site";
 import { getCatalogTree, getAllProducts, bareId } from "@/lib/api";
 
-export const revalidate = 3600;
+// Built from live data on request, so newly added categories/products are
+// always in the sitemap.
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();

@@ -19,21 +19,9 @@ import {
 import { toProductSummary, categoryCover } from "@/lib/catalog-types";
 import { categoryMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 
-export const revalidate = 60;
-
-// Pre-render every category page at build time (refreshed by ISR) so
-// navigating into a category is instant — no on-demand fetch on click.
-export async function generateStaticParams() {
-  try {
-    const tree = await getCatalogTree();
-    return tree.flatMap((n) => [
-      { id: bareId(n.category.PK) },
-      ...n.subcategories.map((s) => ({ id: bareId(s.PK) })),
-    ]);
-  } catch {
-    return [];
-  }
-}
+// Caching disabled: render on every request so anything the admin adds or
+// edits appears immediately, with no stale window and no build-time snapshot.
+export const dynamic = "force-dynamic";
 
 type Params = { params: Promise<{ id: string }> };
 

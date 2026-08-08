@@ -6,6 +6,7 @@ import { CategoryOverviewCard } from "@/components/catalog/CategoryOverviewCard"
 import { CategoryNav } from "@/components/catalog/CategoryNav";
 import { RefreshCatalogButton } from "@/components/catalog/RefreshCatalogButton";
 import { ProductSearch } from "@/components/catalog/ProductSearch";
+import { ProductBrowser } from "@/components/catalog/ProductBrowser";
 import { PageHero } from "@/components/sections/PageHero";
 import { Certifications } from "@/components/sections/Certifications";
 import { CtaBand } from "@/components/sections/CtaBand";
@@ -15,14 +16,15 @@ import {
   getSearchItems,
   bareId,
 } from "@/lib/api";
+import { toProductSummary } from "@/lib/catalog-types";
 import { breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { images } from "@/lib/images";
 
 export const metadata = pageMetadata("products");
 
-// ISR: served fast from cache, refreshed in the background. Admin changes also
-// appear instantly via on-demand revalidation (POST /api/revalidate).
-export const revalidate = 60;
+// Caching disabled: render on every request so anything the admin adds or
+// edits appears immediately, with no stale window.
+export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
   const [tree, allProducts, searchItems] = await Promise.all([
@@ -131,6 +133,29 @@ export default async function ProductsPage() {
               </div>
             </Container>
           </section>
+
+          {/* Every product, always browsable.
+              Category-by-category browsing depends on the backend returning a
+              matching category for each product's CategoryId. This full list is
+              built straight from GET /products, so a product can never become
+              unreachable just because its category link is missing upstream. */}
+          {allProducts.length > 0 && (
+            <section className="border-t border-ink/10 bg-white py-12 sm:py-16">
+              <Container>
+                <div className="mb-8">
+                  <Eyebrow>All products</Eyebrow>
+                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink/55">
+                    The complete Veecos range — search or filter to find exactly
+                    what your kitchen needs.
+                  </p>
+                </div>
+                <ProductBrowser
+                  products={allProducts.map(toProductSummary)}
+                  tree={tree}
+                />
+              </Container>
+            </section>
+          )}
         </>
       ) : (
         <section className="bg-paper py-16 sm:py-24">

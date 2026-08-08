@@ -20,18 +20,9 @@ import {
   breadcrumbJsonLd,
 } from "@/lib/seo";
 
-export const revalidate = 60;
-
-// Pre-render every product page at build time (refreshed by ISR) so opening
-// a product is instant — no on-demand fetch on click.
-export async function generateStaticParams() {
-  try {
-    const products = await getAllProducts();
-    return products.map((p) => ({ id: bareId(p.PK) }));
-  } catch {
-    return [];
-  }
-}
+// Caching disabled: render on every request so anything the admin adds or
+// edits appears immediately, with no stale window and no build-time snapshot.
+export const dynamic = "force-dynamic";
 
 type Params = { params: Promise<{ id: string }> };
 
