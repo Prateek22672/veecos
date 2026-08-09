@@ -13,11 +13,13 @@ import {
   getCatalogTree,
   getAllProducts,
   getCatalogHealth,
+  getApiCallLog,
   resolveCategory,
   prettify,
   bareId,
 } from "@/lib/api";
 import { CatalogDebug } from "@/components/providers/CatalogDebug";
+import { ApiConsoleLog } from "@/components/providers/ApiConsoleLog";
 import { toProductSummary, categoryCover } from "@/lib/catalog-types";
 import { categoryMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 
@@ -111,6 +113,8 @@ export default async function CategoryPage({ params }: Params) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      <ApiConsoleLog page={`/products/${id}`} calls={getApiCallLog()} />
 
       <CatalogDebug
         info={{

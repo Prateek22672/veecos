@@ -16,7 +16,7 @@ export interface Category {
   SK: string;
   Name: string;
   Slug: string;
-  Type: "Category";
+  Type?: "Category";
   ParentId?: string;
   /** Admin panel sends the cover photo as `CoverImage`; `ImageUrl` is legacy/unused but kept as a fallback. */
   CoverImage?: string | null;
@@ -30,7 +30,7 @@ export interface Product {
   SK: string;
   Name: string;
   Slug: string;
-  Type: "Product";
+  Type?: "Product";
   CategoryId?: string;
   Images?: string[];
   Specs?: Record<string, string>;

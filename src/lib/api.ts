@@ -79,7 +79,9 @@ export const CATALOG_TAG = "catalog";
 /*   GET /testimonials                     → admin-managed testimonials */
 /*   POST /leads                           → enquiry submission         */
 /*                                                                      */
-/*  Set VEECOS_API_DEBUG=1 to log every call (method, URL, status, ms). */
+/*  Every call is logged: to the server console, and (via getApiCallLog)      */
+/*  forwarded to the browser console by <ApiConsoleLog />.                    */
+/*  Set VEECOS_API_DEBUG=1 to also dump full response bodies server-side.     */
 /* ------------------------------------------------------------------ */
 
 const API_DEBUG = process.env.VEECOS_API_DEBUG === "1";
@@ -88,6 +90,61 @@ const API_DEBUG = process.env.VEECOS_API_DEBUG === "1";
 const isRetryableStatus = (status: number) => status >= 500 || status === 429;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/* ------------------------------------------------------------------ */
+/*  Per-request API call log — every request/response, for the console. */
+/* ------------------------------------------------------------------ */
+
+export interface ApiCallLog {
+  method: string;
+  endpoint: string;
+  url: string;
+  status: number | "ERROR";
+  ms: number;
+  attempts: number;
+  /** Response body (long strings trimmed so the console stays readable). */
+  response: unknown;
+  error?: string;
+}
+
+/**
+ * Request-scoped collector. React `cache()` returns the same array for the
+ * whole render pass of one request, so every fetch made while building a page
+ * lands in one list that the page can hand to the browser.
+ */
+const apiCallLog = cache((): ApiCallLog[] => []);
+
+/** Every backend call made while rendering the current request, in order. */
+export function getApiCallLog(): ApiCallLog[] {
+  return apiCallLog();
+}
+
+/**
+ * Trim very long strings (product descriptions are multi-KB HTML) so the log
+ * stays readable and the payload sent to the browser stays small. Structure and
+ * field names are preserved exactly — only long string VALUES are shortened.
+ */
+function trimForLog(value: unknown, depth = 0): unknown {
+  if (typeof value === "string") {
+    return value.length > 200
+      ? `${value.slice(0, 200)}… [${value.length} chars total]`
+      : value;
+  }
+  if (Array.isArray(value)) {
+    if (depth > 6) return `[Array(${value.length})]`;
+    return value.map((v) => trimForLog(v, depth + 1));
+  }
+  if (value && typeof value === "object") {
+    if (depth > 6) return "[Object]";
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([k, v]) => [
+        k,
+        trimForLog(v, depth + 1),
+      ]),
+    );
+  }
+  return value;
+}
 
 /**
  * Resilient JSON GET: per-attempt timeout, retries on network/timeout errors
@@ -103,11 +160,41 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  */
 async function getJson<T>(path: string): Promise<ApiEnvelope<T> | null> {
   const url = `${API_BASE}${path}`;
+  const startedAll = Date.now();
+
+  /** Record the call for the server console AND the browser console. */
+  const record = (
+    status: number | "ERROR",
+    attempts: number,
+    response: unknown,
+    error?: string,
+  ) => {
+    const ms = Date.now() - startedAll;
+    const entry: ApiCallLog = {
+      method: "GET",
+      endpoint: path,
+      url,
+      status,
+      ms,
+      attempts,
+      response: trimForLog(response),
+      ...(error ? { error } : {}),
+    };
+    apiCallLog().push(entry);
+
+    const line = `[veecos-api] GET ${path} → ${status} (${ms}ms, ${attempts} attempt${attempts > 1 ? "s" : ""})`;
+    if (status === "ERROR" || (typeof status === "number" && status >= 400)) {
+      console.warn(line, error ?? "");
+    } else {
+      console.log(line);
+    }
+    if (API_DEBUG) console.dir(entry.response, { depth: null });
+    return entry;
+  };
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-    const started = Date.now();
     try {
       const res = await fetch(url, {
         cache: "no-store",
@@ -115,32 +202,30 @@ async function getJson<T>(path: string): Promise<ApiEnvelope<T> | null> {
         signal: controller.signal,
       });
       clearTimeout(timer);
-      if (API_DEBUG) {
-        console.log(
-          `[veecos-api] GET ${url} → ${res.status} (${Date.now() - started}ms, attempt ${attempt})`,
-        );
-      }
 
-      if (res.ok) return (await res.json()) as ApiEnvelope<T>;
+      if (res.ok) {
+        const json = (await res.json()) as ApiEnvelope<T>;
+        record(res.status, attempt, json);
+        return json;
+      }
 
       // Transient upstream failure → back off and try again.
       if (isRetryableStatus(res.status) && attempt < MAX_ATTEMPTS) {
         console.warn(
-          `[veecos-api] GET ${url} → ${res.status}, retrying (attempt ${attempt}/${MAX_ATTEMPTS})`,
+          `[veecos-api] GET ${path} → ${res.status}, retrying (attempt ${attempt}/${MAX_ATTEMPTS})`,
         );
         await sleep(150 * attempt);
         continue;
       }
 
-      console.warn(`[veecos-api] GET ${url} failed with ${res.status}`);
+      const body = await res.text().catch(() => "");
+      record(res.status, attempt, body, `HTTP ${res.status}`);
       return null;
     } catch (err) {
       clearTimeout(timer);
+      const message = err instanceof Error ? err.message : String(err);
       if (attempt === MAX_ATTEMPTS) {
-        console.warn(
-          `[veecos-api] GET ${url} errored after ${MAX_ATTEMPTS} attempts:`,
-          err instanceof Error ? err.message : err,
-        );
+        record("ERROR", attempt, null, message);
         return null;
       }
       await sleep(150 * attempt);
@@ -161,16 +246,30 @@ export const getRootCategories = cache(async (): Promise<Category[]> => {
 });
 
 /**
- * Child categories of a category id. The `/subcategories` endpoint returns
- * child categories AND direct products mixed together, so we keep only categories.
+ * Is this mixed-children record a category?
+ *
+ * The `/subcategories` endpoint returns child categories AND direct products
+ * together. `Type` is NOT reliable: only records written by the newest admin
+ * code carry `Type: "Category"` — older rows omit it entirely. The `PK` prefix
+ * (`CATEGORY#…` vs `PRODUCT#…`) is present on every record, so key off that and
+ * treat `Type` as a fallback only.
  */
+function isCategoryRecord(record: Category | Product): record is Category {
+  if (typeof record?.PK === "string") {
+    if (record.PK.startsWith("CATEGORY#")) return true;
+    if (record.PK.startsWith("PRODUCT#")) return false;
+  }
+  return record?.Type === "Category";
+}
+
+/** Child categories of a category id (products in the same payload are dropped). */
 export const getSubcategories = cache(
   async (id: string): Promise<Category[]> => {
     const json = await getJson<{ subcategories: Array<Category | Product> }>(
       `/categories/${encodeURIComponent(id)}/subcategories`,
     );
     const list = json?.data?.subcategories ?? [];
-    return list.filter((c): c is Category => c.Type === "Category");
+    return list.filter(isCategoryRecord);
   },
 );
 
@@ -319,9 +418,7 @@ export async function debugCatalog(): Promise<{
       ((call.response as ApiEnvelope<{
         subcategories: Array<Category | Product>;
       }> | null)?.data?.subcategories ?? []);
-    kids
-      .filter((k) => k.Type === "Category")
-      .forEach((k) => knownCats.add(bareId(k.PK)));
+    kids.filter(isCategoryRecord).forEach((k) => knownCats.add(bareId(k.PK)));
   }
 
   // 3) Every page of /products (follows the lastKey cursor)

@@ -11,7 +11,14 @@ import { ProductCard } from "@/components/catalog/ProductCard";
 import { RichText } from "@/components/ui/RichText";
 import { Certifications } from "@/components/sections/Certifications";
 import { EnquiryDialog } from "@/components/contact/EnquiryDialog";
-import { getProduct, getAllProducts, resolveCategory, bareId } from "@/lib/api";
+import {
+  getProduct,
+  getAllProducts,
+  resolveCategory,
+  getApiCallLog,
+  bareId,
+} from "@/lib/api";
+import { ApiConsoleLog } from "@/components/providers/ApiConsoleLog";
 import { toProductSummary } from "@/lib/catalog-types";
 import { site } from "@/lib/site";
 import {
@@ -101,6 +108,7 @@ export default async function ProductPage({ params }: Params) {
         }}
       />
       <PageBackground color="#ffffff" />
+      <ApiConsoleLog page={`/product/${id}`} calls={getApiCallLog()} />
 
       {/* Breadcrumb */}
       <div className="bg-white pt-28 sm:pt-32">

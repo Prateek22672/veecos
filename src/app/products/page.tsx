@@ -15,9 +15,11 @@ import {
   getAllProducts,
   getSearchItems,
   getCatalogHealth,
+  getApiCallLog,
   bareId,
 } from "@/lib/api";
 import { CatalogDebug } from "@/components/providers/CatalogDebug";
+import { ApiConsoleLog } from "@/components/providers/ApiConsoleLog";
 import { toProductSummary } from "@/lib/catalog-types";
 import { breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { images } from "@/lib/images";
@@ -61,6 +63,8 @@ export default async function ProductsPage() {
           __html: JSON.stringify([breadcrumb, itemList]),
         }}
       />
+
+      <ApiConsoleLog page="/products" calls={getApiCallLog()} />
 
       <CatalogDebug
         info={{
