@@ -29,7 +29,33 @@ export const API_BASE =
   "https://mbevr3vs87.execute-api.ap-south-1.amazonaws.com";
 
 const REQUEST_TIMEOUT_MS = 8000;
-const MAX_ATTEMPTS = 2;
+const MAX_ATTEMPTS = 3;
+
+/**
+ * Max simultaneous upstream requests. The catalogue tree needs one
+ * /subcategories call per root category; firing all of them at once made the
+ * API Gateway/Lambda backend return sporadic 503s, which silently emptied that
+ * category's sub-categories for the whole render. Batching keeps it stable.
+ */
+const MAX_CONCURRENCY = 4;
+
+/** Promise.all with a concurrency cap, preserving input order. */
+async function mapLimit<T, R>(
+  items: readonly T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const i = next++;
+      results[i] = await fn(items[i], i);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
 
 /**
  * Kept only so the existing /api/revalidate + /api/refresh-catalog routes still
@@ -58,9 +84,16 @@ export const CATALOG_TAG = "catalog";
 
 const API_DEBUG = process.env.VEECOS_API_DEBUG === "1";
 
+/** 5xx and 429 are transient — the same request can succeed moments later. */
+const isRetryableStatus = (status: number) => status >= 500 || status === 429;
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 /**
- * Resilient JSON GET: per-attempt timeout + one retry on network/timeout error,
- * graceful null on failure (never throws → a flaky API can't crash a page).
+ * Resilient JSON GET: per-attempt timeout, retries on network/timeout errors
+ * AND on transient 5xx/429 responses (with backoff), graceful null only after
+ * every attempt fails — so a flaky API can't crash a page or silently blank
+ * out a section.
  *
  * CACHING IS DISABLED (`cache: "no-store"`). Every render fetches live data so
  * anything the admin panel adds or edits shows up immediately, with no stale
@@ -84,14 +117,23 @@ async function getJson<T>(path: string): Promise<ApiEnvelope<T> | null> {
       clearTimeout(timer);
       if (API_DEBUG) {
         console.log(
-          `[veecos-api] GET ${url} → ${res.status} (${Date.now() - started}ms)`,
+          `[veecos-api] GET ${url} → ${res.status} (${Date.now() - started}ms, attempt ${attempt})`,
         );
       }
-      if (!res.ok) {
-        console.warn(`[veecos-api] GET ${url} failed with ${res.status}`);
-        return null;
+
+      if (res.ok) return (await res.json()) as ApiEnvelope<T>;
+
+      // Transient upstream failure → back off and try again.
+      if (isRetryableStatus(res.status) && attempt < MAX_ATTEMPTS) {
+        console.warn(
+          `[veecos-api] GET ${url} → ${res.status}, retrying (attempt ${attempt}/${MAX_ATTEMPTS})`,
+        );
+        await sleep(150 * attempt);
+        continue;
       }
-      return (await res.json()) as ApiEnvelope<T>;
+
+      console.warn(`[veecos-api] GET ${url} failed with ${res.status}`);
+      return null;
     } catch (err) {
       clearTimeout(timer);
       if (attempt === MAX_ATTEMPTS) {
@@ -101,6 +143,7 @@ async function getJson<T>(path: string): Promise<ApiEnvelope<T> | null> {
         );
         return null;
       }
+      await sleep(150 * attempt);
     }
   }
   return null;
@@ -187,8 +230,8 @@ export const getProduct = cache(
 /** Build the catalogue tree (root categories + their direct sub-categories). */
 export const getCatalogTree = cache(async (): Promise<CatalogNode[]> => {
   const roots = await getRootCategories();
-  const subs = await Promise.all(
-    roots.map((r) => getSubcategories(bareId(r.PK))),
+  const subs = await mapLimit(roots, MAX_CONCURRENCY, (r) =>
+    getSubcategories(bareId(r.PK)),
   );
   return roots.map((category, i) => ({
     category,
@@ -384,8 +427,8 @@ export const resolveCategory = cache(
     const inRoot = roots.find((c) => bareId(c.PK) === id);
     if (inRoot) return inRoot;
 
-    const childLists = await Promise.all(
-      roots.map((r) => getSubcategories(bareId(r.PK))),
+    const childLists = await mapLimit(roots, MAX_CONCURRENCY, (r) =>
+      getSubcategories(bareId(r.PK)),
     );
     for (const list of childLists) {
       const found = list.find((c) => bareId(c.PK) === id);
