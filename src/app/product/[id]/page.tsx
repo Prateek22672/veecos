@@ -15,10 +15,8 @@ import {
   getProduct,
   getAllProducts,
   resolveCategory,
-  getApiCallLog,
   bareId,
 } from "@/lib/api";
-import { ApiConsoleLog } from "@/components/providers/ApiConsoleLog";
 import { toProductSummary } from "@/lib/catalog-types";
 import { site } from "@/lib/site";
 import {
@@ -27,9 +25,20 @@ import {
   breadcrumbJsonLd,
 } from "@/lib/seo";
 
-// Caching disabled: render on every request so anything the admin adds or
-// edits appears immediately, with no stale window and no build-time snapshot.
-export const dynamic = "force-dynamic";
+// ISR: cached HTML served instantly and refreshed in the background. Admin
+// saves appear immediately via POST /api/revalidate (purges CATALOG_TAG).
+export const revalidate = 300;
+
+// Prerender every product page so opening one is instant. New products still
+// work — they render on demand and are cached from then on.
+export async function generateStaticParams() {
+  try {
+    const products = await getAllProducts();
+    return products.map((p) => ({ id: bareId(p.PK) }));
+  } catch {
+    return [];
+  }
+}
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -108,7 +117,6 @@ export default async function ProductPage({ params }: Params) {
         }}
       />
       <PageBackground color="#ffffff" />
-      <ApiConsoleLog page={`/product/${id}`} calls={getApiCallLog()} />
 
       {/* Breadcrumb */}
       <div className="bg-white pt-28 sm:pt-32">

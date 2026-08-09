@@ -12,20 +12,30 @@ import { CtaBand } from "@/components/sections/CtaBand";
 import {
   getCatalogTree,
   getAllProducts,
-  getCatalogHealth,
-  getApiCallLog,
   resolveCategory,
   prettify,
   bareId,
 } from "@/lib/api";
-import { CatalogDebug } from "@/components/providers/CatalogDebug";
-import { ApiConsoleLog } from "@/components/providers/ApiConsoleLog";
 import { toProductSummary, categoryCover } from "@/lib/catalog-types";
 import { categoryMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 
-// Caching disabled: render on every request so anything the admin adds or
-// edits appears immediately, with no stale window and no build-time snapshot.
-export const dynamic = "force-dynamic";
+// ISR: cached HTML served instantly and refreshed in the background. Admin
+// saves appear immediately via POST /api/revalidate (purges CATALOG_TAG).
+export const revalidate = 300;
+
+// Prerender every category page so navigating into one is instant. New
+// categories still work — they render on demand and are cached from then on.
+export async function generateStaticParams() {
+  try {
+    const tree = await getCatalogTree();
+    return tree.flatMap((n) => [
+      { id: bareId(n.category.PK) },
+      ...n.subcategories.map((s) => ({ id: bareId(s.PK) })),
+    ]);
+  } catch {
+    return [];
+  }
+}
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -39,11 +49,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 export default async function CategoryPage({ params }: Params) {
   const { id } = await params;
 
-  const [category, tree, allProducts, health] = await Promise.all([
+  const [category, tree, allProducts] = await Promise.all([
     resolveCategory(id),
     getCatalogTree(),
     getAllProducts(),
-    getCatalogHealth(),
   ]);
 
   // Is this a main category (has sub-categories)?
@@ -114,24 +123,6 @@ export default async function CategoryPage({ params }: Params) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <ApiConsoleLog page={`/products/${id}`} calls={getApiCallLog()} />
-
-      <CatalogDebug
-        info={{
-          page: `/products/${id}  (${name})`,
-          categoriesDiscoverable: health.categoriesVisible,
-          productsTotal: health.productsTotal,
-          productsBrowsable: health.productsBrowsable,
-          unreachableCategoryIds: health.unreachableCategoryIds,
-          endpoints: [
-            "GET /categories",
-            "GET /categories/{id}/subcategories   (once per root category)",
-            "GET /products   (paginated, 10/page via ?lastKey=)",
-            `→ this category resolved to: ${category ? `"${category.Name}"` : "NOT FOUND in /categories or any /subcategories"}`,
-            `→ products matched to this category: ${catProducts.length}`,
-          ],
-        }}
-      />
 
       {/* Header — compact, store-style: crumb, title + live count, one line */}
       <section className="bg-paper pb-6 pt-28 sm:pb-8 sm:pt-32">

@@ -8,6 +8,7 @@
  */
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import {
   bareId,
   prettify,
@@ -58,9 +59,9 @@ async function mapLimit<T, R>(
 }
 
 /**
- * Kept only so the existing /api/revalidate + /api/refresh-catalog routes still
- * compile. Catalogue reads are NO LONGER cached (see getJson below), so purging
- * is a no-op — every page render reads live data straight from the backend.
+ * Cache tag applied to every catalogue read. `revalidateTag(CATALOG_TAG)`
+ * purges the whole catalogue at once — the admin panel calls
+ * POST /api/revalidate after a save so changes go live immediately.
  */
 export const CATALOG_TAG = "catalog";
 
@@ -79,9 +80,9 @@ export const CATALOG_TAG = "catalog";
 /*   GET /testimonials                     → admin-managed testimonials */
 /*   POST /leads                           → enquiry submission         */
 /*                                                                      */
-/*  Every call is logged: to the server console, and (via getApiCallLog)      */
-/*  forwarded to the browser console by <ApiConsoleLog />.                    */
-/*  Set VEECOS_API_DEBUG=1 to also dump full response bodies server-side.     */
+/*  Set VEECOS_API_DEBUG=1 to log every call (URL, status, timing).           */
+/*  Live diagnostics without redeploying: /api/catalog-health (summary) and   */
+/*  /api/debug/catalog (raw upstream responses, uncached).                    */
 /* ------------------------------------------------------------------ */
 
 const API_DEBUG = process.env.VEECOS_API_DEBUG === "1";
@@ -91,147 +92,89 @@ const isRetryableStatus = (status: number) => status >= 500 || status === 429;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/* ------------------------------------------------------------------ */
-/*  Per-request API call log — every request/response, for the console. */
-/* ------------------------------------------------------------------ */
-
-export interface ApiCallLog {
-  method: string;
-  endpoint: string;
-  url: string;
-  status: number | "ERROR";
-  ms: number;
-  attempts: number;
-  /** Response body (long strings trimmed so the console stays readable). */
-  response: unknown;
-  error?: string;
-}
-
 /**
- * Request-scoped collector. React `cache()` returns the same array for the
- * whole render pass of one request, so every fetch made while building a page
- * lands in one list that the page can hand to the browser.
- */
-const apiCallLog = cache((): ApiCallLog[] => []);
-
-/** Every backend call made while rendering the current request, in order. */
-export function getApiCallLog(): ApiCallLog[] {
-  return apiCallLog();
-}
-
-/**
- * Trim very long strings (product descriptions are multi-KB HTML) so the log
- * stays readable and the payload sent to the browser stays small. Structure and
- * field names are preserved exactly — only long string VALUES are shortened.
- */
-function trimForLog(value: unknown, depth = 0): unknown {
-  if (typeof value === "string") {
-    return value.length > 200
-      ? `${value.slice(0, 200)}… [${value.length} chars total]`
-      : value;
-  }
-  if (Array.isArray(value)) {
-    if (depth > 6) return `[Array(${value.length})]`;
-    return value.map((v) => trimForLog(v, depth + 1));
-  }
-  if (value && typeof value === "object") {
-    if (depth > 6) return "[Object]";
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([k, v]) => [
-        k,
-        trimForLog(v, depth + 1),
-      ]),
-    );
-  }
-  return value;
-}
-
-/**
- * Resilient JSON GET: per-attempt timeout, retries on network/timeout errors
- * AND on transient 5xx/429 responses (with backoff), graceful null only after
- * every attempt fails — so a flaky API can't crash a page or silently blank
- * out a section.
+ * How long a successful catalogue response may be reused (seconds).
  *
- * CACHING IS DISABLED (`cache: "no-store"`). Every render fetches live data so
- * anything the admin panel adds or edits shows up immediately, with no stale
- * window. React `cache()` on the exported readers still de-dupes identical
- * calls *within a single request* — that is request-scoped memoisation, not a
- * cross-request cache, so it never serves stale data.
+ * This is a FALLBACK, not the update mechanism: the admin panel should call
+ * POST /api/revalidate after each save, which purges the CATALOG_TAG and makes
+ * changes appear immediately. The TTL only bounds staleness if that webhook is
+ * missed. Verify freshness any time at /api/catalog-health.
  */
-async function getJson<T>(path: string): Promise<ApiEnvelope<T> | null> {
+const CATALOG_TTL_SECONDS = 300;
+
+/**
+ * Live, uncached GET with a per-attempt timeout. Retries network/timeout
+ * errors and transient 5xx/429 responses with backoff.
+ *
+ * THROWS on definitive failure rather than returning null — that is what keeps
+ * failures out of the cache layer above (see `getJson`). Never call directly.
+ */
+async function fetchJsonLive<T>(path: string): Promise<ApiEnvelope<T>> {
   const url = `${API_BASE}${path}`;
-  const startedAll = Date.now();
-
-  /** Record the call for the server console AND the browser console. */
-  const record = (
-    status: number | "ERROR",
-    attempts: number,
-    response: unknown,
-    error?: string,
-  ) => {
-    const ms = Date.now() - startedAll;
-    const entry: ApiCallLog = {
-      method: "GET",
-      endpoint: path,
-      url,
-      status,
-      ms,
-      attempts,
-      response: trimForLog(response),
-      ...(error ? { error } : {}),
-    };
-    apiCallLog().push(entry);
-
-    const line = `[veecos-api] GET ${path} → ${status} (${ms}ms, ${attempts} attempt${attempts > 1 ? "s" : ""})`;
-    if (status === "ERROR" || (typeof status === "number" && status >= 400)) {
-      console.warn(line, error ?? "");
-    } else {
-      console.log(line);
-    }
-    if (API_DEBUG) console.dir(entry.response, { depth: null });
-    return entry;
-  };
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const started = Date.now();
     try {
       const res = await fetch(url, {
+        // Bypass Next's fetch cache — caching is handled explicitly by the
+        // wrapper below, so that only SUCCESSFUL responses are ever stored.
         cache: "no-store",
         headers: { Accept: "application/json" },
         signal: controller.signal,
       });
       clearTimeout(timer);
 
-      if (res.ok) {
-        const json = (await res.json()) as ApiEnvelope<T>;
-        record(res.status, attempt, json);
-        return json;
+      if (API_DEBUG) {
+        console.log(
+          `[veecos-api] GET ${path} → ${res.status} (${Date.now() - started}ms, attempt ${attempt})`,
+        );
       }
 
-      // Transient upstream failure → back off and try again.
+      if (res.ok) return (await res.json()) as ApiEnvelope<T>;
+
       if (isRetryableStatus(res.status) && attempt < MAX_ATTEMPTS) {
-        console.warn(
-          `[veecos-api] GET ${path} → ${res.status}, retrying (attempt ${attempt}/${MAX_ATTEMPTS})`,
-        );
         await sleep(150 * attempt);
         continue;
       }
-
-      const body = await res.text().catch(() => "");
-      record(res.status, attempt, body, `HTTP ${res.status}`);
-      return null;
+      throw new Error(`GET ${path} failed with ${res.status}`);
     } catch (err) {
       clearTimeout(timer);
-      const message = err instanceof Error ? err.message : String(err);
-      if (attempt === MAX_ATTEMPTS) {
-        record("ERROR", attempt, null, message);
-        return null;
-      }
+      if (attempt === MAX_ATTEMPTS) throw err;
       await sleep(150 * attempt);
     }
   }
-  return null;
+  throw new Error(`GET ${path} exhausted ${MAX_ATTEMPTS} attempts`);
+}
+
+/**
+ * Cached JSON GET.
+ *
+ * Successful responses are stored in Next's Data Cache under CATALOG_TAG for
+ * CATALOG_TTL_SECONDS, so a page render costs ~zero upstream calls. Because
+ * `fetchJsonLive` THROWS on failure, a 5xx/timeout is never written to the
+ * cache — a transient blip can't freeze a broken page for the whole TTL
+ * (negative caching), and the previously cached good value keeps serving.
+ *
+ * Returns null on definitive failure so callers degrade gracefully instead of
+ * crashing the page.
+ */
+async function getJson<T>(path: string): Promise<ApiEnvelope<T> | null> {
+  try {
+    const read = unstable_cache(
+      () => fetchJsonLive<T>(path),
+      ["veecos-api", path],
+      { revalidate: CATALOG_TTL_SECONDS, tags: [CATALOG_TAG] },
+    );
+    return await read();
+  } catch (err) {
+    console.warn(
+      `[veecos-api] GET ${path} unavailable:`,
+      err instanceof Error ? err.message : err,
+    );
+    return null;
+  }
 }
 
 /* ------------------------------------------------------------------ */
