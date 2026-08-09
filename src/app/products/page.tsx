@@ -14,8 +14,10 @@ import {
   getCatalogTree,
   getAllProducts,
   getSearchItems,
+  getCatalogHealth,
   bareId,
 } from "@/lib/api";
+import { CatalogDebug } from "@/components/providers/CatalogDebug";
 import { toProductSummary } from "@/lib/catalog-types";
 import { breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { images } from "@/lib/images";
@@ -27,10 +29,11 @@ export const metadata = pageMetadata("products");
 export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
-  const [tree, allProducts, searchItems] = await Promise.all([
+  const [tree, allProducts, searchItems, health] = await Promise.all([
     getCatalogTree(),
     getAllProducts(),
     getSearchItems(),
+    getCatalogHealth(),
   ]);
 
   const countUnder = (mainId: string, subIds: string[]) => {
@@ -56,6 +59,21 @@ export default async function ProductsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify([breadcrumb, itemList]),
+        }}
+      />
+
+      <CatalogDebug
+        info={{
+          page: "/products",
+          categoriesDiscoverable: health.categoriesVisible,
+          productsTotal: health.productsTotal,
+          productsBrowsable: health.productsBrowsable,
+          unreachableCategoryIds: health.unreachableCategoryIds,
+          endpoints: [
+            "GET /categories",
+            "GET /categories/{id}/subcategories   (once per root category)",
+            "GET /products   (paginated, 10/page via ?lastKey=)",
+          ],
         }}
       />
 

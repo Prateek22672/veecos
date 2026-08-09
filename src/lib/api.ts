@@ -196,6 +196,142 @@ export const getCatalogTree = cache(async (): Promise<CatalogNode[]> => {
   }));
 });
 
+/* ------------------------------------------------------------------ */
+/*  Debug — raw upstream responses, for /api/debug/catalog.             */
+/* ------------------------------------------------------------------ */
+
+export interface DebugCall {
+  endpoint: string;
+  url: string;
+  status: number | "ERROR";
+  ms: number;
+  /** Raw response body exactly as the backend returned it. */
+  response: unknown;
+  error?: string;
+}
+
+/** One raw, uncached GET with timing — no parsing/filtering applied. */
+async function rawGet(path: string): Promise<DebugCall> {
+  const url = `${API_BASE}${path}`;
+  const started = Date.now();
+  try {
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+    const text = await res.text();
+    let parsed: unknown = text;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      /* keep raw text if it isn't JSON */
+    }
+    return {
+      endpoint: `GET ${path}`,
+      url,
+      status: res.status,
+      ms: Date.now() - started,
+      response: parsed,
+    };
+  } catch (err) {
+    return {
+      endpoint: `GET ${path}`,
+      url,
+      status: "ERROR",
+      ms: Date.now() - started,
+      response: null,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+/**
+ * Walks every catalogue endpoint the site uses and returns the raw responses,
+ * so the exact upstream payloads can be inspected in one place.
+ */
+export async function debugCatalog(): Promise<{
+  apiBase: string;
+  calls: DebugCall[];
+  summary: Record<string, unknown>;
+}> {
+  const calls: DebugCall[] = [];
+
+  // 1) Root categories
+  const rootsCall = await rawGet("/categories");
+  calls.push(rootsCall);
+  const roots =
+    ((rootsCall.response as ApiEnvelope<{ categories: Category[] }> | null)
+      ?.data?.categories ?? []);
+
+  // 2) Children of each root
+  const knownCats = new Set<string>();
+  roots.forEach((r) => knownCats.add(bareId(r.PK)));
+  for (const r of roots) {
+    const call = await rawGet(
+      `/categories/${encodeURIComponent(bareId(r.PK))}/subcategories`,
+    );
+    call.endpoint += `   (${r.Name})`;
+    calls.push(call);
+    const kids =
+      ((call.response as ApiEnvelope<{
+        subcategories: Array<Category | Product>;
+      }> | null)?.data?.subcategories ?? []);
+    kids
+      .filter((k) => k.Type === "Category")
+      .forEach((k) => knownCats.add(bareId(k.PK)));
+  }
+
+  // 3) Every page of /products (follows the lastKey cursor)
+  const products: Product[] = [];
+  let cursor: string | undefined;
+  for (let i = 0; i < 60; i++) {
+    const path = cursor
+      ? `/products?lastKey=${encodeURIComponent(cursor)}`
+      : "/products";
+    const call = await rawGet(path);
+    call.endpoint = `GET /products  (page ${i + 1})`;
+    calls.push(call);
+    const data = (call.response as ApiEnvelope<{
+      products: Product[];
+      hasMore?: boolean;
+      lastKey?: unknown;
+    }> | null)?.data;
+    const batch = data?.products ?? [];
+    products.push(...batch);
+    const lk = data?.lastKey;
+    if (!data?.hasMore || lk == null || batch.length === 0) break;
+    cursor = typeof lk === "string" ? lk : JSON.stringify(lk);
+  }
+
+  const unreachable: Record<string, string[]> = {};
+  for (const p of products) {
+    const cid = p.CategoryId;
+    if (!cid || !knownCats.has(cid)) {
+      const key = cid ?? "(no CategoryId)";
+      (unreachable[key] ??= []).push(p.Name);
+    }
+  }
+
+  return {
+    apiBase: API_BASE,
+    calls,
+    summary: {
+      rootCategories: roots.length,
+      categoriesDiscoverable: knownCats.size,
+      productsTotal: products.length,
+      productsBrowsable:
+        products.length -
+        Object.values(unreachable).reduce((a, b) => a + b.length, 0),
+      unreachableCategories: Object.fromEntries(
+        Object.entries(unreachable).map(([id, names]) => [
+          id,
+          { count: names.length, products: names },
+        ]),
+      ),
+    },
+  };
+}
+
 /**
  * Catalogue health check.
  *
