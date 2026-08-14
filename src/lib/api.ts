@@ -539,7 +539,14 @@ export const getSearchItems = cache(async (): Promise<SearchIndexItem[]> => {
 export interface Testimonial {
   quote: string;
   name: string;
+  /** Job title only (e.g. "Procurement Head"). Empty if not given. */
   role: string;
+  /** Organisation only (e.g. "GITAM University"). Empty string if not given. */
+  company: string;
+  /** Admin-uploaded photo. Most testimonials won't have one — always optional. */
+  avatarUrl?: string;
+  /** 1–5. Undefined if the admin didn't set a rating. */
+  rating?: number;
 }
 
 /** First non-empty string among the given keys (case/shape tolerant). */
@@ -551,10 +558,26 @@ function pickStr(o: Record<string, unknown>, keys: string[]): string {
   return "";
 }
 
+/** A string value that's plausibly a URL (avatar field naming isn't fixed yet). */
+function pickUrl(o: Record<string, unknown>, keys: string[]): string | undefined {
+  const v = pickStr(o, keys);
+  return v && /^https?:\/\//i.test(v) ? v : undefined;
+}
+
+function pickRating(o: Record<string, unknown>): number | undefined {
+  const v = o.Rating ?? o.rating ?? o.Stars ?? o.stars;
+  const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
+  return Number.isFinite(n) ? Math.min(5, Math.max(1, Math.round(n))) : undefined;
+}
+
 /**
  * Live testimonials from the admin panel. Maps flexibly across possible field
- * names. Returns [] if the endpoint is empty/unavailable so the caller can fall
- * back to the built-in set.
+ * names — confirmed live shape is { Name, Designation, Company, Content,
+ * Rating, showThis }, but the avatar field name isn't confirmed yet since no
+ * live record has used it, so several likely names are checked. Filters out
+ * anything explicitly unapproved as a safety net (the endpoint already only
+ * returns showThis: true). Returns [] if unavailable so the caller falls back
+ * to the built-in set.
  */
 export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
   const json = await getJson<unknown>("/testimonials");
@@ -566,25 +589,27 @@ export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
       : [];
 
   return list
+    .filter((o) => o.showThis !== false && o.ShowThis !== false)
     .map((o) => ({
       quote: pickStr(o, [
-        "quote", "Quote", "message", "Message", "text", "Text",
-        "review", "Review", "content", "Content", "Testimonial", "Feedback",
+        "Content", "content", "quote", "Quote", "message", "Message",
+        "text", "Text", "review", "Review", "Testimonial", "Feedback",
       ]),
       name: pickStr(o, [
-        "name", "Name", "author", "Author", "clientName", "ClientName", "customer", "Customer",
+        "Name", "name", "author", "Author", "clientName", "ClientName", "customer", "Customer",
       ]),
-      role: pickStr(o, [
-        "role", "Role", "designation", "Designation", "company", "Company",
-        "title", "Title", "organisation", "Organisation", "organization", "Organization",
+      role: pickStr(o, ["Designation", "designation", "Role", "role", "Title", "title"]),
+      company: pickStr(o, [
+        "Company", "company", "Organisation", "organisation", "Organization", "organization",
       ]),
+      avatarUrl: pickUrl(o, [
+        "Avatar", "avatar", "AvatarUrl", "avatarUrl", "AvatarURL",
+        "Image", "image", "ImageUrl", "imageUrl", "Photo", "photo", "ProfileImage",
+      ]),
+      rating: pickRating(o),
     }))
     .filter((t) => t.quote.length > 0)
-    .map((t) => ({
-      quote: t.quote,
-      name: t.name || "Veecos Client",
-      role: t.role || "Verified customer",
-    }));
+    .map((t) => ({ ...t, name: t.name || "Veecos Client" }));
 });
 
 /* ------------------------------------------------------------------ */

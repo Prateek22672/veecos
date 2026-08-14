@@ -137,6 +137,9 @@ export interface Testimonial {
   quote: string;
   name: string;
   role: string;
+  company: string;
+  avatarUrl?: string;
+  rating?: number;
 }
 
 export const testimonials: Testimonial[] = [
@@ -144,37 +147,43 @@ export const testimonials: Testimonial[] = [
     quote:
       "Veecos handled our entire institutional kitchen end-to-end — design, fabrication and install. The build quality of their stainless steel is genuinely excellent.",
     name: "Procurement Head",
-    role: "Engineering College, Visakhapatnam",
+    role: "",
+    company: "Engineering College, Visakhapatnam",
   },
   {
     quote:
       "Their team understood our limited kitchen space and engineered equipment that fit perfectly. After-sales support has been prompt every single time.",
     name: "Operations Manager",
-    role: "Multi-cuisine Restaurant",
+    role: "",
+    company: "Multi-cuisine Restaurant",
   },
   {
     quote:
       "Reliable, on-time and well within budget. The energy-efficient cooking ranges noticeably reduced our running costs.",
     name: "Facility Manager",
-    role: "Industrial Canteen",
+    role: "",
+    company: "Industrial Canteen",
   },
   {
     quote:
       "From layout planning to commissioning, the process was smooth. Our hostel mess kitchen now runs faster with far less maintenance.",
     name: "Administrative Officer",
-    role: "Residential College",
+    role: "",
+    company: "Residential College",
   },
   {
     quote:
       "The custom exhaust hoods and cooking ranges they fabricated for our hotel are top-class. Solid 304 steel, perfect finish.",
     name: "Executive Chef",
-    role: "Business Hotel, Vizag",
+    role: "",
+    company: "Business Hotel, Vizag",
   },
   {
     quote:
       "We've worked with Veecos across multiple canteen projects. Consistent quality, fair pricing and dependable service every time.",
     name: "Plant Facilities Lead",
-    role: "Industrial Canteen",
+    role: "",
+    company: "Industrial Canteen",
   },
 ];
 
