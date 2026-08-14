@@ -10,10 +10,11 @@ export async function TestimonialsSection() {
   const items = fetched.length > 0 ? fetched : fallbackTestimonials;
 
   return (
-    <section className="overflow-hidden bg-paper-2 pb-20 pt-2 sm:pb-28 sm:pt-4">
+    <section className="overflow-hidden bg-night pb-20 pt-14 sm:pb-28 sm:pt-16">
       <Container>
         <SectionHeading
           align="center"
+          light
           eyebrow="Testimonials"
           title="What our clients say"
           description="A few words from the institutions, hotels and canteens we've built kitchens for."
