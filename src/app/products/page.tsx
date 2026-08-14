@@ -180,7 +180,7 @@ export default async function ProductsPage() {
         </section>
       )}
 
-      <Certifications />
+      <Certifications tone="dark" />
 
       <CtaBand secondary={{ label: "Talk to our team", href: "/contact" }} />
     </>

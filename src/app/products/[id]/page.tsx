@@ -212,7 +212,7 @@ export default async function CategoryPage({ params }: Params) {
         </Container>
       </section>
 
-      <Certifications />
+      <Certifications tone="dark" />
 
       <CtaBand secondary={{ label: "Talk to our team", href: "/contact" }} />
     </>

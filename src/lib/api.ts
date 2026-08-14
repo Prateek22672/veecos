@@ -103,6 +103,15 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const CATALOG_TTL_SECONDS = 300;
 
 /**
+ * Testimonials is a single cheap call (unlike the 26-call catalogue tree), so
+ * there's no real performance case for a long TTL — a short one gives
+ * near-instant updates automatically, with no admin webhook and no manual
+ * "Refresh" needed, while keeping the home page statically generated (a full
+ * cache bypass would force it to fully server-render on every request).
+ */
+const TESTIMONIALS_TTL_SECONDS = 30;
+
+/**
  * Live, uncached GET with a per-attempt timeout. Retries network/timeout
  * errors and transient 5xx/429 responses with backoff.
  *
@@ -151,21 +160,36 @@ async function fetchJsonLive<T>(path: string): Promise<ApiEnvelope<T>> {
 /**
  * Cached JSON GET.
  *
- * Successful responses are stored in Next's Data Cache under CATALOG_TAG for
- * CATALOG_TTL_SECONDS, so a page render costs ~zero upstream calls. Because
- * `fetchJsonLive` THROWS on failure, a 5xx/timeout is never written to the
- * cache — a transient blip can't freeze a broken page for the whole TTL
+ * Successful responses are stored in Next's Data Cache for `revalidateSeconds`
+ * (default CATALOG_TTL_SECONDS, tagged CATALOG_TAG so the admin webhook and
+ * the Refresh button purge it), so a page render costs ~zero upstream calls.
+ * Because `fetchJsonLive` THROWS on failure, a 5xx/timeout is never written to
+ * the cache — a transient blip can't freeze a broken page for the whole TTL
  * (negative caching), and the previously cached good value keeps serving.
+ *
+ * Pass a short `revalidateSeconds` for cheap, single-call endpoints where
+ * there's no real performance win from a long TTL (e.g. testimonials) — this
+ * still goes through the Data Cache (via unstable_cache), so the calling page
+ * stays statically generated. `revalidateSeconds: 0` bypasses the Data Cache
+ * entirely via a raw `cache: "no-store"` fetch — that forces the WHOLE
+ * calling route into dynamic (server-rendered-per-request) mode, not just
+ * this one call, so only reach for it on a page that's already dynamic.
  *
  * Returns null on definitive failure so callers degrade gracefully instead of
  * crashing the page.
  */
-async function getJson<T>(path: string): Promise<ApiEnvelope<T> | null> {
+async function getJson<T>(
+  path: string,
+  opts: { revalidateSeconds?: number } = {},
+): Promise<ApiEnvelope<T> | null> {
+  const revalidateSeconds = opts.revalidateSeconds ?? CATALOG_TTL_SECONDS;
   try {
+    if (revalidateSeconds === 0) return await fetchJsonLive<T>(path);
+
     const read = unstable_cache(
       () => fetchJsonLive<T>(path),
       ["veecos-api", path],
-      { revalidate: CATALOG_TTL_SECONDS, tags: [CATALOG_TAG] },
+      { revalidate: revalidateSeconds, tags: [CATALOG_TAG] },
     );
     return await read();
   } catch (err) {
@@ -578,9 +602,18 @@ function pickRating(o: Record<string, unknown>): number | undefined {
  * anything explicitly unapproved as a second safety net (the endpoint already
  * only returns showThis: true). Returns [] if unavailable so the caller falls
  * back to the built-in set.
+ *
+ * Short TTL (30s, see TESTIMONIALS_TTL_SECONDS) rather than the 300s catalogue
+ * default — this is one cheap call, so there's no real cost to refreshing it
+ * often, and it means a new/edited testimonial appears within moments with no
+ * admin webhook and no manual "Refresh" needed. Still goes through the Data
+ * Cache, so the home page stays statically generated rather than becoming
+ * fully dynamic.
  */
 export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
-  const json = await getJson<unknown>("/testimonials");
+  const json = await getJson<unknown>("/testimonials", {
+    revalidateSeconds: TESTIMONIALS_TTL_SECONDS,
+  });
   const data = json?.data as unknown;
   const list: Record<string, unknown>[] = Array.isArray(data)
     ? (data as Record<string, unknown>[])
