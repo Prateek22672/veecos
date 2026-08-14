@@ -61,7 +61,7 @@ export function Certifications({ tone = "paper" }: { tone?: Tone }) {
               <div className="mx-auto flex w-full max-w-60 items-center justify-center gap-6">
                 {dark ? (
                   <>
-                    <span className="grid size-24 shrink-0 place-items-center rounded-2xl bg-white p-3 sm:size-28">
+                    <span className="grid size-24 shrink-0 place-items-center rounded-2xl bg-white p-5 sm:size-28 sm:p-6">
                       <Image
                         src={images.nsic}
                         alt="NSIC registered — Veecos Canteen Equipments"
@@ -70,7 +70,7 @@ export function Certifications({ tone = "paper" }: { tone?: Tone }) {
                         className="h-auto w-full object-contain"
                       />
                     </span>
-                    <span className="grid size-24 shrink-0 place-items-center rounded-2xl bg-white p-3 sm:size-28">
+                    <span className="grid size-24 shrink-0 place-items-center rounded-2xl bg-white p-5 sm:size-28 sm:p-6">
                       <Image
                         src={images.iso}
                         alt="ISO 9001:2015 certified — Veecos Canteen Equipments"

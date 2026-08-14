@@ -55,7 +55,7 @@ export function ClientsSection() {
   return (
     <section
       id="clients"
-      className="scroll-mt-24 overflow-hidden bg-paper-2 pb-20 pt-14 sm:pb-28 sm:pt-16"
+      className="scroll-mt-24 overflow-hidden bg-paper-2 pb-8 pt-14 sm:pb-10 sm:pt-16"
     >
       <Container>
         <div className="mx-auto max-w-3xl text-center">
