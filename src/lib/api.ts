@@ -571,13 +571,13 @@ function pickRating(o: Record<string, unknown>): number | undefined {
 }
 
 /**
- * Live testimonials from the admin panel. Maps flexibly across possible field
- * names — confirmed live shape is { Name, Designation, Company, Content,
- * Rating, showThis }, but the avatar field name isn't confirmed yet since no
- * live record has used it, so several likely names are checked. Filters out
- * anything explicitly unapproved as a safety net (the endpoint already only
- * returns showThis: true). Returns [] if unavailable so the caller falls back
- * to the built-in set.
+ * Live testimonials from the admin panel. Confirmed live shape (with an
+ * avatar present): { Name, Designation, Company, Content, Rating, AvatarUrl,
+ * showThis/ShowThis }. Still mapped flexibly across a few alternate key
+ * spellings as a safety net against future backend changes. Filters out
+ * anything explicitly unapproved as a second safety net (the endpoint already
+ * only returns showThis: true). Returns [] if unavailable so the caller falls
+ * back to the built-in set.
  */
 export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
   const json = await getJson<unknown>("/testimonials");
