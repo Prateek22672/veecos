@@ -10,7 +10,7 @@ export async function TestimonialsSection() {
   const items = fetched.length > 0 ? fetched : fallbackTestimonials;
 
   return (
-    <section className="overflow-hidden bg-night pb-20 pt-14 sm:pb-28 sm:pt-16">
+    <section className="overflow-hidden bg-charcoal pb-20 pt-14 sm:pb-28 sm:pt-16">
       <Container>
         <SectionHeading
           align="center"
