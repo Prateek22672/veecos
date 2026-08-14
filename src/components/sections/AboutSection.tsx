@@ -7,7 +7,7 @@ import { SmartImage } from "@/components/ui/SmartImage";
 import { features } from "@/lib/content";
 import { images } from "@/lib/images";
 
-const aboutImg = images.chefTossing;
+const aboutImg = images.aboutWhoWeAre;
 
 export function AboutSection() {
   return (

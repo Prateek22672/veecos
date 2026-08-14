@@ -70,7 +70,7 @@ export function Modal({
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
             transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "relative z-10 max-h-[90vh] w-full overflow-y-auto overscroll-contain rounded-t-3xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-3xl",
+              "relative z-10 max-h-[90vh] w-full overflow-y-auto overscroll-contain rounded-t-3xl bg-white shadow-2xl [-ms-overflow-style:none] [scrollbar-width:none] sm:max-w-2xl sm:rounded-3xl [&::-webkit-scrollbar]:hidden",
               className,
             )}
           >
