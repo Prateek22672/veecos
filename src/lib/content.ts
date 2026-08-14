@@ -34,7 +34,7 @@ export const services: Service[] = [
       "Space management for tight footprints",
       "Compliance & hygiene-first zoning",
     ],
-    image: images.kitchenReference,
+    image: images.journeyDesign,
   },
   {
     no: "02",
@@ -48,7 +48,7 @@ export const services: Service[] = [
       "Made-to-measure for any kitchen size",
       "304 / 316 food-grade steel",
     ],
-    image: images.kitchenExhaust,
+    image: images.journeyDurable,
   },
   {
     no: "03",
@@ -62,7 +62,7 @@ export const services: Service[] = [
       "Full equipment commissioning & testing",
       "Faster handover, less downtime",
     ],
-    image: images.flameGrill,
+    image: images.journeyInstallation,
   },
   {
     no: "04",
@@ -76,7 +76,7 @@ export const services: Service[] = [
       "Preventive maintenance",
       "Genuine spares & quick response",
     ],
-    image: images.servicesAfterSales,
+    image: images.journeySupport,
   },
 ];
 

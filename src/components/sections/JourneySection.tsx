@@ -45,7 +45,7 @@ const STEPS: Step[] = [
     n: "02",
     label: "Design",
     title: "We plan every inch",
-    text: "Engineers turn your brief into a 3D layout built around real workflow — hygiene zoning, easy access and smart use of every footprint.",
+    text: "Engineers turn your brief into a 2D layout built around real workflow — hygiene zoning, easy access and smart use of every footprint.",
     icon: PencilRuler,
     image: "/journey/design-veecos.webp",
   },

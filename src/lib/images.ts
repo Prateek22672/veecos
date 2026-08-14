@@ -27,15 +27,12 @@ export const images = {
 
   // Journey / services photography (real Veecos team + workshop shots)
   journeyConsult: "/journey/consult-veecos.webp", // client consultation meeting
-  journeyDesign: "/journey/design-veecos.webp", // engineer planning a 3D kitchen layout
+  journeyDesign: "/journey/design-veecos.webp", // engineer planning a 2D kitchen layout
   journeyDurable: "/journey/durable-veecos.webp", // CNC/laser fabrication
   journeyInstallation: "/journey/installation-veecos.webp", // on-site installation team
   journeySupport: "/journey/support-veecos.webp", // after-sales servicing
 
-  // Distinct service-card photography (separate from the journey strip above)
-  servicesDesignPlanning: "/services/design-planning.webp",
-  servicesManufacturing: "/services/manufacturing.webp",
-  servicesInstallation: "/services/installation.webp",
+  /** Real Veecos after-sales photo (kept; the service cards use the journey set). */
   servicesAfterSales: "/services/after-sales.webp",
 
   turnkeyKitchen: "/turnkey-kitchen.webp", // completed turn-key kitchen installation
