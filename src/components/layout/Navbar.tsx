@@ -10,8 +10,10 @@ import { nav, site, whatsappUrl } from "@/lib/site";
 import { cn } from "@/lib/cn";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { Logo } from "./Logo";
 import { EnquiryDialog } from "@/components/contact/EnquiryDialog";
+import { LeadWizard } from "@/components/contact/LeadWizard";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -50,6 +52,7 @@ export function Navbar({ productMenu }: { productMenu?: MenuCard[] }) {
   const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [barQuoteOpen, setBarQuoteOpen] = useState(false);
   const pathname = usePathname();
 
   const closeMobile = () => {
@@ -93,15 +96,24 @@ export function Navbar({ productMenu }: { productMenu?: MenuCard[] }) {
           <span>
             Workshop in Auto Nagar, Visakhapatnam · Open Mon–Sat, 8:30 AM – 5:30 PM
           </span>
-          <Link
-            href="/contact"
+          <button
+            type="button"
+            onClick={() => setBarQuoteOpen(true)}
             className="group inline-flex items-center gap-1 font-medium text-ink/80 transition-colors hover:text-ink"
           >
             Planning a kitchen? Get a quote
             <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
+          </button>
         </Container>
       </div>
+
+      <Modal
+        open={barQuoteOpen}
+        onClose={() => setBarQuoteOpen(false)}
+        label="Request a quote"
+      >
+        <LeadWizard />
+      </Modal>
 
       {/* Nav row — full-width frosted bar → floating pill on scroll.
           When not scrolled the background + border span the full width (outer),
