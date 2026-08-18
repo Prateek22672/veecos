@@ -103,43 +103,46 @@ function Milestone({ step, index }: { step: Step; index: number }) {
         left ? "md:pr-6" : "md:ml-auto md:pl-6 md:text-right",
       )}
     >
-      {/* Ghost numeral — bleeds behind the photo for editorial weight */}
-      <span
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute -top-10 select-none text-[7rem] font-bold leading-none tracking-tighter text-ink/[0.06] sm:text-[9rem]",
-          left ? "-left-2 sm:-left-4" : "-right-2 sm:-right-4",
-        )}
-      >
-        {step.n}
-      </span>
-
-      {/* Pinned photograph */}
-      <div
-        className={cn(
-          "group relative z-10 w-full max-w-sm rounded-sm border-[10px] border-white bg-white shadow-[0_28px_60px_-30px_rgba(20,20,15,0.5)] transition-transform duration-500 ease-out hover:rotate-0",
-          left ? "-rotate-3" : "ml-auto rotate-2",
-        )}
-      >
-        <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
-          <Image
-            src={step.image}
-            alt={step.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 40vw"
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
-        </div>
-        {/* Caption tag — overlaps the photo's bottom edge like a paper tab */}
+      {/* Pinned photograph — positioning parent for the ghost numeral, so it
+          sits off the photo's real rendered edge instead of overlapping it */}
+      <div className={cn("relative w-full max-w-sm", !left && "ml-auto")}>
+        {/* Ghost numeral — sits beside the photo, never hidden behind it */}
         <span
+          aria-hidden
           className={cn(
-            "absolute -bottom-3.5 inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-paper shadow-[0_8px_20px_-8px_rgba(20,20,15,0.6)]",
-            left ? "left-4" : "right-4",
+            "pointer-events-none absolute top-1/2 hidden -translate-y-1/2 select-none text-[6.5rem] font-bold leading-none tracking-tighter text-ink/[0.09] md:block lg:text-[8rem]",
+            left ? "left-full ml-4 lg:ml-6" : "right-full mr-4 lg:mr-6",
           )}
         >
-          <Icon className="size-3" strokeWidth={2} />
-          {step.n} · {step.label}
+          {step.n}
         </span>
+
+        <div
+          className={cn(
+            "group relative z-10 rounded-sm border-[10px] border-white bg-white shadow-[0_28px_60px_-30px_rgba(20,20,15,0.5)] transition-transform duration-500 ease-out hover:rotate-0",
+            left ? "-rotate-3" : "rotate-2",
+          )}
+        >
+          <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+            <Image
+              src={step.image}
+              alt={step.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+          </div>
+          {/* Caption tag — overlaps the photo's bottom edge like a paper tab */}
+          <span
+            className={cn(
+              "absolute -bottom-3.5 inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-paper shadow-[0_8px_20px_-8px_rgba(20,20,15,0.6)]",
+              left ? "left-4" : "right-4",
+            )}
+          >
+            <Icon className="size-3" strokeWidth={2} />
+            {step.n} · {step.label}
+          </span>
+        </div>
       </div>
 
       {/* Copy */}
