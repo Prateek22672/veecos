@@ -53,13 +53,18 @@ function TestimonialCard({ item }: { item: TestimonialItem }) {
 
       <div className="mt-auto flex items-center gap-3 border-t border-line pt-4">
         {item.avatarUrl ? (
-          <div className="relative size-11 shrink-0 overflow-hidden rounded-full bg-paper-2">
+          // object-contain (not cover): the avatar field is used for both
+          // headshot photos and wide company logos/wordmarks (e.g. "ERS") -
+          // cover would zoom in and crop a wide logo's edges off. Contain
+          // always shows the whole image; the padding keeps it off the
+          // circular edge so a rectangular logo doesn't touch the curve.
+          <div className="relative size-11 shrink-0 overflow-hidden rounded-full bg-paper-2 p-1.5">
             <SmartImage
               src={item.avatarUrl}
               alt={item.name}
               fill
               sizes="44px"
-              className="object-cover"
+              className="object-contain"
             />
           </div>
         ) : (
