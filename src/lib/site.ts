@@ -26,8 +26,10 @@ export const site = {
     full: "Plot No B 8, EEIE, IDA 'B' BLOCK, Auto Nagar, Visakhapatnam, Andhra Pradesh 530012",
   },
   socials: {
-    instagram: "https://instagram.com",
-    linkedin: "https://linkedin.com",
+    instagram:
+      "https://www.instagram.com/veecoscanteenequipments_?igsh=d2UxYTN4YnQ0eGc1",
+    linkedin:
+      "https://www.linkedin.com/company/veecos-canteen-equipments-visakhapatnam/",
   },
 } as const;
 
