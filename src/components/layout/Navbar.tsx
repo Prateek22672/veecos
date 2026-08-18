@@ -91,7 +91,7 @@ export function Navbar({ productMenu }: { productMenu?: MenuCard[] }) {
       >
         <Container className="flex h-9 items-center justify-between text-[12px] tracking-tight text-ink/55">
           <span>
-            Workshop in Auto Nagar, Visakhapatnam · Open Mon–Sat, 9:30 AM – 7:00 PM
+            Workshop in Auto Nagar, Visakhapatnam · Open Mon–Sat, 8:30 AM – 5:30 PM
           </span>
           <Link
             href="/contact"

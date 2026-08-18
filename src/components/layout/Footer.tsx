@@ -133,7 +133,7 @@ export function Footer() {
               href="https://foliofyx.in"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-white/55 transition-colors hover:text-white"
+              className="inline-flex items-center gap-1 text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white hover:decoration-white/60"
             >
               Crafted by FOLIOFYX
               <ArrowUpRight className="size-3" />

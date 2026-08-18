@@ -94,7 +94,7 @@ export const PAGE_SEO: Record<PageSeoKey, PageSeo> = {
     label: "Contact",
     title: "Contact Veecos — Kitchen Equipment, Auto Nagar Vizag",
     description:
-      "Contact Veecos Canteen Equipments, Auto Nagar, Visakhapatnam. Call +91 9848196184 or email sales@vce.co.in for a commercial kitchen equipment quote & installation.",
+      "Contact Veecos Canteen Equipments, Auto Nagar, Visakhapatnam. Call +91 9581396184 or email sales@vce.co.in for a commercial kitchen equipment quote & installation.",
     keywords: [
       "contact Veecos",
       "commercial kitchen equipment Visakhapatnam contact",

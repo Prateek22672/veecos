@@ -1,5 +1,5 @@
 import { pageMetadata } from "@/lib/seo-config";
-import { Target, Eye, Scissors, Layers, Flame, Cog } from "lucide-react";
+import { Target, Eye, Scissors, Flame, Cog } from "lucide-react";
 import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
@@ -166,7 +166,7 @@ export default function AboutPage() {
             </Reveal>
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 icon: Scissors,
@@ -175,13 +175,8 @@ export default function AboutPage() {
               },
               {
                 icon: Cog,
-                title: "Bending Machine",
+                title: "CNC Bending Machine",
                 text: "Accurate sheet-metal folds for tight, uniform seams on every fabrication.",
-              },
-              {
-                icon: Layers,
-                title: "Hydraulic Bending Machine",
-                text: "High-tonnage forming for heavy-gauge steel used in load-bearing frames.",
               },
               {
                 icon: Flame,

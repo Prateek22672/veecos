@@ -15,6 +15,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { submitLead } from "@/lib/leads";
+import { site } from "@/lib/site";
 import { cn } from "@/lib/cn";
 
 type CatItem = {
@@ -419,10 +420,10 @@ export function LeadWizard({
                   : "Your quote request is in. We'll get back with pricing & options shortly."}{" "}
                 For anything urgent, call{" "}
                 <a
-                  href="tel:+919848196184"
+                  href={`tel:${site.phones[0].replace(/\s/g, "")}`}
                   className="font-medium text-ink underline underline-offset-4"
                 >
-                  +91 9848196184
+                  {site.phones[0]}
                 </a>
                 .
               </motion.p>
