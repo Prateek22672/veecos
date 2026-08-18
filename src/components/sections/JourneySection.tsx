@@ -75,106 +75,83 @@ const STEPS: Step[] = [
   },
 ];
 
+// Hand-drawn route the trail follows — a smooth left↔right wave, one band
+// per step, in a 0–100 wide / 0–500 tall coordinate space (stretched to fit
+// the real track via preserveAspectRatio="none"). This is what replaces the
+// straight center spine.
+const TRAIL_D =
+  "M18,0 C18,60 82,40 82,100 C82,160 18,140 18,200 C18,260 82,240 82,300 C82,360 18,340 18,400 L18,480";
+
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 28 },
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
 };
 
 function Milestone({ step, index }: { step: Step; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  // Image drifts downward through its frame as the milestone passes — the
-  // "flowing down the journey" feel.
-  const y = useTransform(
-    scrollYProgress,
-    [0, 1],
-    reduce ? ["0%", "0%"] : ["-12%", "12%"],
-  );
-  const flip = index % 2 === 1;
+  const left = index % 2 === 0;
   const Icon = step.icon;
 
   return (
-    <div
-      ref={ref}
-      className="relative pl-20 md:grid md:grid-cols-2 md:items-center md:gap-16 md:pl-0"
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-15%" }}
+      className={cn(
+        "relative",
+        "md:w-[54%]",
+        left ? "md:pr-6" : "md:ml-auto md:pl-6 md:text-right",
+      )}
     >
-      {/* Milestone marker on the spine */}
-      <motion.span
-        initial={{ scale: 0.5, opacity: 0 }}
-        whileInView={{ scale: 1, opacity: 1 }}
-        viewport={{ once: true, margin: "-18%" }}
-        transition={{ duration: 0.5, ease: EASE }}
-        className="absolute left-8 top-1 z-10 grid size-12 -translate-x-1/2 place-items-center rounded-full border-2 border-ink bg-paper text-ink shadow-[0_0_0_6px_var(--color-paper)] md:left-1/2"
-      >
-        <Icon className="size-5" strokeWidth={1.6} />
-      </motion.span>
-
-      {/* Text */}
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-15%" }}
+      {/* Ghost numeral — bleeds behind the photo for editorial weight */}
+      <span
+        aria-hidden
         className={cn(
-          "md:py-6",
-          flip ? "md:order-2 md:pl-16" : "md:pr-16 md:text-right",
+          "pointer-events-none absolute -top-10 select-none text-[7rem] font-bold leading-none tracking-tighter text-ink/[0.06] sm:text-[9rem]",
+          left ? "-left-2 sm:-left-4" : "-right-2 sm:-right-4",
         )}
       >
-        <div
+        {step.n}
+      </span>
+
+      {/* Pinned photograph */}
+      <div
+        className={cn(
+          "group relative z-10 w-full max-w-sm rounded-sm border-[10px] border-white bg-white shadow-[0_28px_60px_-30px_rgba(20,20,15,0.5)] transition-transform duration-500 ease-out hover:rotate-0",
+          left ? "-rotate-3" : "ml-auto rotate-2",
+        )}
+      >
+        <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+          <Image
+            src={step.image}
+            alt={step.title}
+            fill
+            sizes="(max-width: 768px) 100vw, 40vw"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+        </div>
+        {/* Caption tag — overlaps the photo's bottom edge like a paper tab */}
+        <span
           className={cn(
-            "flex items-baseline gap-3",
-            flip ? "" : "md:justify-end",
+            "absolute -bottom-3.5 inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-paper shadow-[0_8px_20px_-8px_rgba(20,20,15,0.6)]",
+            left ? "left-4" : "right-4",
           )}
         >
-          <span className="text-[clamp(2rem,3vw,3rem)] font-medium leading-none tracking-[-0.03em] text-ink/15">
-            {step.n}
-          </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/40">
-            {step.label}
-          </span>
-        </div>
-        <h3 className="mt-3 text-[clamp(1.6rem,2.6vw,2.4rem)] font-medium leading-tight tracking-[-0.02em] text-ink">
+          <Icon className="size-3" strokeWidth={2} />
+          {step.n} · {step.label}
+        </span>
+      </div>
+
+      {/* Copy */}
+      <div className={cn("relative z-10 mt-9 max-w-sm", !left && "md:ml-auto")}>
+        <h3 className="text-[clamp(1.5rem,2.4vw,2.1rem)] font-medium leading-tight tracking-[-0.02em] text-ink">
           {step.title}
         </h3>
-        <p
-          className={cn(
-            "mt-3 max-w-md text-base leading-relaxed text-ink/60",
-            flip ? "" : "md:ml-auto",
-          )}
-        >
+        <p className="mt-2.5 text-[15px] leading-relaxed text-ink/60">
           {step.text}
         </p>
-      </motion.div>
-
-      {/* Image — parallax flow */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-15%" }}
-        transition={{ duration: 0.8, ease: EASE }}
-        className={cn(
-          "mt-6 md:mt-0",
-          flip ? "md:order-1 md:pr-16" : "md:pl-16",
-        )}
-      >
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-paper-2 shadow-[0_30px_70px_-45px_rgba(20,20,15,0.5)]">
-          <motion.div style={{ y }} className="absolute inset-[-12%]">
-            <Image
-              src={step.image}
-              alt={step.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 42vw"
-              className="object-cover"
-            />
-          </motion.div>
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/35 via-transparent to-transparent" />
-        </div>
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
 }
 
@@ -186,18 +163,18 @@ export function JourneySection() {
     target: trackRef,
     offset: ["start 0.85", "end 0.45"],
   });
+  const trailDrawn = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
-  // Seal appears only while the journey is in frame, zig-zags left↔right as you
-  // scroll through the milestones, and settles toward the centre at the last step.
-  // It's a pure function of scroll position, so scrolling up reverses it exactly.
+  // Seal rides the same left↔right rhythm as the trail, settling centre at
+  // the final step. Pure function of scroll, so scrolling up reverses it.
   const { scrollYProgress: sealProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
   });
   const sealX = useTransform(
     sealProgress,
-    [0, 0.2, 0.4, 0.6, 0.8, 1],
-    ["6vw", "76vw", "6vw", "76vw", "6vw", "6vw"],
+    [0, 0.18, 0.38, 0.58, 0.78, 1],
+    ["10vw", "80vw", "10vw", "80vw", "10vw", "10vw"],
   );
   const sealOpacity = useTransform(
     sealProgress,
@@ -210,7 +187,7 @@ export function JourneySection() {
       {/* Traveling brand seal — desktop only (within the journey frame) */}
       <motion.div
         aria-hidden
-        style={{ x: reduce ? "6vw" : sealX, opacity: reduce ? 0.5 : sealOpacity }}
+        style={{ x: reduce ? "10vw" : sealX, opacity: reduce ? 0.5 : sealOpacity }}
         className="pointer-events-none fixed left-0 top-[calc(50vh-64px)] z-30 hidden lg:block"
       >
         <SealBadge />
@@ -238,32 +215,47 @@ export function JourneySection() {
             From an empty room to a working kitchen
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ink/55">
-            Follow the journey — five milestones that take your project from the
-            first conversation to a kitchen that runs, day after day.
+            Five stops on the way from the first conversation to a kitchen
+            that runs, day after day — follow the trail.
           </p>
         </motion.div>
 
-        {/* Milestone timeline */}
+        {/* Trail */}
         <div
           ref={trackRef}
-          className="relative mx-auto mt-16 max-w-5xl sm:mt-20"
+          className="relative mx-auto mt-20 max-w-4xl space-y-24 sm:mt-24 md:space-y-32"
         >
-          {/* The path (fills as you scroll) */}
-          <div
+          {/* Hand-drawn connecting route — desktop only, draws in on scroll */}
+          <svg
             aria-hidden
-            className="absolute left-8 top-2 h-[calc(100%-1rem)] w-px overflow-hidden bg-ink/10 md:left-1/2 md:-translate-x-1/2"
+            viewBox="0 0 100 500"
+            preserveAspectRatio="none"
+            className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
           >
-            <motion.div
-              style={{ scaleY: reduce ? 1 : scrollYProgress }}
-              className="h-full w-full origin-top bg-ink"
+            <path
+              d={TRAIL_D}
+              fill="none"
+              stroke="var(--color-ink)"
+              strokeOpacity="0.12"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              pathLength={1}
             />
-          </div>
+            <motion.path
+              d={TRAIL_D}
+              fill="none"
+              stroke="var(--color-ink)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeDasharray="1"
+              pathLength={1}
+              style={{ strokeDashoffset: reduce ? 0 : trailDrawn }}
+            />
+          </svg>
 
-          <div className="space-y-16 md:space-y-28">
-            {STEPS.map((step, i) => (
-              <Milestone key={step.n} step={step} index={i} />
-            ))}
-          </div>
+          {STEPS.map((step, i) => (
+            <Milestone key={step.n} step={step} index={i} />
+          ))}
         </div>
       </Container>
     </section>
